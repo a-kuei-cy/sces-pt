@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#24585e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="親師通">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" id="mf" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>興嘉親師通</title>
+<style>
+:root{
+  --ink:#1f2933; --ink2:#52606d; --ink3:#9aa5b1; --line:#e4e0d8;
+  --bg:#f5f2ec; --card:#fff; --pri:#24585e; --pri2:#3c7f86; --priSoft:#e3efef;
+  --acc:#d9822b; --accSoft:#fbeedd; --ok:#2f8a57; --okSoft:#e2f3e8; --bad:#c2453d; --badSoft:#fae4e2;
+  --r:14px; --shadow:0 1px 2px rgba(31,41,51,.06),0 4px 14px rgba(31,41,51,.05);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  background:var(--bg);color:var(--ink);font-size:16px;line-height:1.55}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.app{max-width:640px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;background:var(--bg)}
+/* header */
+.hd{position:sticky;top:0;z-index:20;background:var(--pri);color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;
+  display:flex;align-items:center;gap:10px}
+.hd h1{font-size:18px;margin:0;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd small{display:block;font-size:12px;font-weight:400;opacity:.8}
+.hd .ib{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff}
+.hd .ib:active{background:rgba(255,255,255,.15)}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#9be3b5;flex:none}
+.sync-dot.busy{background:#ffd27a;animation:pulse 1s infinite}
+.sync-dot.err{background:#ff9b93}
+@keyframes pulse{50%{opacity:.3}}
+/* main */
+main{flex:1;padding:14px 14px calc(84px + env(safe-area-inset-bottom))}
+.sec-t{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 10px}
+.sec-t h2{font-size:15px;margin:0;color:var(--ink2);font-weight:600}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px;margin-bottom:12px}
+.card.unread{box-shadow:inset 4px 0 0 var(--acc),var(--shadow)}
+.meta{font-size:12.5px;color:var(--ink3);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ttl{font-weight:700;font-size:16.5px;margin:4px 0 6px}
+.body{white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+.body a{color:var(--pri2)}
+.tag{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:99px;font-weight:600}
+.tag.pri{background:var(--priSoft);color:var(--pri)}
+.tag.acc{background:var(--accSoft);color:#a35d12}
+.tag.ok{background:var(--okSoft);color:var(--ok)}
+.tag.bad{background:var(--badSoft);color:var(--bad)}
+.tag.gray{background:#eef0f2;color:var(--ink2)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.foot{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);flex-wrap:wrap}
+.btn{padding:9px 16px;border-radius:10px;font-weight:600;font-size:15px;background:var(--pri);color:#fff;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.btn:active{transform:scale(.97)}
+.btn.sm{padding:6px 12px;font-size:14px;border-radius:9px}
+.btn.ghost{background:var(--priSoft);color:var(--pri)}
+.btn.line{background:#fff;color:var(--ink2);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.acc{background:var(--acc)}
+.btn.bad{background:var(--bad)}
+.btn.okb{background:var(--ok)}
+.btn.block{width:100%;padding:13px}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.link{color:var(--pri2);font-weight:600;font-size:14px}
+.empty{text-align:center;color:var(--ink3);padding:48px 16px}
+.empty .big{font-size:40px;margin-bottom:6px}
+/* bars for poll */
+.bar{margin:6px 0}
+.bar .lb{display:flex;justify-content:space-between;font-size:14px}
+.bar .tr{height:8px;background:#eef0f2;border-radius:99px;overflow:hidden;margin-top:3px}
+.bar .tr i{display:block;height:100%;background:var(--pri2);border-radius:99px}
+.opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--line);margin:6px 0;cursor:pointer}
+.opt.on{box-shadow:inset 0 0 0 2px var(--pri);background:var(--priSoft)}
+.opt input{accent-color:var(--pri);width:18px;height:18px}
+/* nav */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#fff;border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom)}
+.nav .in{max-width:640px;margin:0 auto;display:flex}
+.nav button{flex:1;padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11.5px;color:var(--ink3);position:relative}
+.nav button svg{width:24px;height:24px}
+.nav button.on{color:var(--pri);font-weight:700}
+.badge{position:absolute;top:3px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;line-height:1}
+.fab{position:fixed;right:max(18px,calc(50% - 302px));bottom:calc(80px + env(safe-area-inset-bottom));z-index:19;width:56px;height:56px;border-radius:18px;background:var(--acc);color:#fff;box-shadow:0 6px 18px rgba(217,130,43,.4);display:grid;place-items:center}
+.fab svg{width:28px;height:28px}
+/* list rows */
+.li{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border-bottom:1px solid #f0ede7;cursor:pointer}
+.li:first-child{border-radius:var(--r) var(--r) 0 0}.li:last-child{border-radius:0 0 var(--r) var(--r);border-bottom:0}
+.li:only-child{border-radius:var(--r)}
+.list{box-shadow:var(--shadow);border-radius:var(--r);margin-bottom:12px}
+.av{width:42px;height:42px;border-radius:50%;background:var(--priSoft);color:var(--pri);display:grid;place-items:center;font-weight:700;flex:none;font-size:15px}
+.li .mid{flex:1;min-width:0}
+.li .nm{font-weight:600}
+.li .pv{font-size:13.5px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .rt{text-align:right;font-size:12px;color:var(--ink3);display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.cnt{min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--bad);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
+/* chat */
+.chat{display:flex;flex-direction:column;gap:6px;padding-bottom:8px}
+.day{align-self:center;font-size:12px;color:var(--ink2);background:#e9e5dd;padding:2px 10px;border-radius:99px;margin:10px 0 4px}
+.bub{max-width:80%;padding:9px 13px;border-radius:16px;white-space:pre-wrap;word-break:break-word;position:relative}
+.bub.me{align-self:flex-end;background:var(--pri);color:#fff;border-bottom-right-radius:5px}
+.bub.me a{color:#fff}
+.bub.them{align-self:flex-start;background:#fff;box-shadow:var(--shadow);border-bottom-left-radius:5px}
+.bub-meta{font-size:11px;color:var(--ink3);margin:-2px 4px 4px}
+.bub-meta.me{align-self:flex-end}
+.compose{position:fixed;bottom:calc(58px + env(safe-area-inset-bottom));left:0;right:0;z-index:18;background:var(--bg);border-top:1px solid var(--line)}
+.compose .in{max-width:640px;margin:0 auto;padding:8px 10px;display:flex;gap:8px;align-items:flex-end}
+.compose textarea{flex:1;resize:none;border:1.5px solid var(--line);border-radius:20px;padding:9px 14px;max-height:120px;background:#fff;outline:none}
+.compose textarea:focus{border-color:var(--pri2)}
+.compose .send{width:42px;height:42px;border-radius:50%;background:var(--pri);color:#fff;display:grid;place-items:center;flex:none}
+.quiet{background:var(--accSoft);color:#8a4f0f;font-size:13px;padding:8px 12px;border-radius:10px;margin-bottom:10px}
+/* forms */
+label.f{display:block;margin:12px 0 4px;font-size:14px;font-weight:600;color:var(--ink2)}
+.in-t{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);background:#fff;outline:none}
+.in-t:focus{border-color:var(--pri2)}
+textarea.in-t{resize:vertical;min-height:90px}
+.seg{display:flex;background:#ebe7df;border-radius:12px;padding:4px;gap:4px}
+.seg button{flex:1;padding:9px;border-radius:9px;font-weight:600;color:var(--ink2)}
+.seg button.on{background:#fff;color:var(--pri);box-shadow:var(--shadow)}
+.hint{font-size:13px;color:var(--ink3);margin-top:6px}
+.err{color:var(--bad);font-size:14px;min-height:20px;margin-top:8px}
+/* login */
+.login{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px 20px;max-width:440px;margin:0 auto}
+.brand{text-align:center;margin-bottom:22px}
+.logo{width:72px;height:72px;border-radius:22px;background:var(--pri);color:#fff;display:grid;place-items:center;margin:0 auto 12px;box-shadow:0 8px 24px rgba(36,88,94,.3)}
+.logo svg{width:40px;height:40px}
+.brand h1{margin:0;font-size:24px}
+.brand p{margin:4px 0 0;color:var(--ink2);font-size:14px}
+.demo-bar{background:#fff3d6;color:#7a5200;font-size:12.5px;text-align:center;padding:4px}
+/* modal */
+.mask{position:fixed;inset:0;background:rgba(20,28,36,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
+.sheet{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));animation:up .2s ease-out}
+@media(min-width:700px){.mask{align-items:center}.sheet{border-radius:20px;max-width:520px}}
+.sheet h3{margin:0 0 6px;font-size:18px}
+.sheet .acts{display:flex;gap:10px;margin-top:18px}
+.sheet .acts .btn{flex:1;padding:12px}
+@keyframes fade{from{opacity:0}}@keyframes up{from{transform:translateY(40px);opacity:.5}}
+.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(31,41,51,.92);color:#fff;padding:10px 18px;border-radius:99px;z-index:60;font-size:14px;max-width:86vw;text-align:center;animation:fade .2s}
+table.tb{width:100%;border-collapse:collapse;font-size:14px}
+table.tb th,table.tb td{padding:8px 6px;border-bottom:1px solid #f0ede7;text-align:left}
+table.tb th{color:var(--ink2);font-weight:600;font-size:13px}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:1px;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{font-size:13px;padding:3px 10px;border-radius:99px;background:#f1efe9}
+.chip.no{background:var(--badSoft);color:var(--bad)}
+.reply{background:#f7f5f0;border-radius:10px;padding:8px 10px;margin-top:6px;font-size:14px}
+.att-grid{display:grid;gap:4px;margin:6px 0;max-width:260px}
+.att-grid.n1{grid-template-columns:1fr}.att-grid.n2{grid-template-columns:1fr 1fr}.att-grid.n3{grid-template-columns:1fr 1fr 1fr}
+.att-img{padding:0;border-radius:12px;overflow:hidden;background:#e9e5dd;aspect-ratio:1/1;display:block}
+.att-grid.n1 .att-img{aspect-ratio:auto;min-height:120px}
+.att-img img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .2s}
+.att-img img.ok{opacity:1}
+.att-file{display:flex;gap:10px;align-items:center;text-align:left;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);border-radius:12px;padding:9px 12px;margin:6px 0;max-width:280px;width:100%}
+.att-file .fi{font-size:26px}.att-file .fn{min-width:0;display:flex;flex-direction:column}
+.att-file b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.att-file small{font-size:12px;color:var(--ink3)}
+.lcard{display:flex;gap:10px;align-items:center;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);border-radius:12px;padding:8px;margin:6px 0;max-width:300px;text-decoration:none;color:var(--ink)}
+.lcard img{width:96px;height:54px;object-fit:cover;border-radius:8px;flex:none}
+.lcard .lic{width:38px;height:38px;border-radius:9px;background:var(--priSoft);display:grid;place-items:center;flex:none}
+.lcard span{min-width:0;display:flex;flex-direction:column}.lcard b{font-size:14px}.lcard small{font-size:12px;color:var(--ink3);word-break:break-all}
+.mg{display:flex;flex-direction:column;max-width:82%}
+.mg.me{align-self:flex-end;align-items:flex-end}.mg.them{align-self:flex-start;align-items:flex-start}
+.mg .bub{max-width:100%}
+.stk{width:116px;height:116px;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:var(--shadow)}
+.stk .se{font-size:50px;line-height:1}.stk .st{font-size:14px;font-weight:700;color:var(--ink);background:#fff;padding:1px 10px;border-radius:99px}
+.stk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.stk-grid button{padding:0;display:grid;place-items:center}.stk-grid .stk{width:100%;height:auto;aspect-ratio:1/1}.stk-grid .stk .se{font-size:40px}
+.compose .cbtn{width:38px;height:42px;display:grid;place-items:center;color:var(--ink2);font-size:22px;flex:none}
+.compose .cbtn svg{width:24px;height:24px}
+.pend{display:flex;gap:8px;overflow-x:auto;padding:8px 10px 0;max-width:640px;margin:0 auto}
+.pend:empty{display:none}
+.pd{position:relative;flex:none;width:64px;height:64px;border-radius:10px;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line)}
+.pd img{width:100%;height:100%;object-fit:cover}
+.pd .pf{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;font-size:22px;padding:2px}
+.pd .pf small{font-size:9px;max-width:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pd button{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:11px;line-height:20px;padding:0}
+.viewer{position:fixed;inset:0;background:rgba(10,14,18,.94);z-index:70;display:flex;flex-direction:column;animation:fade .15s}
+.viewer .vi{flex:1;display:grid;place-items:center;overflow:auto;padding:12px}
+.viewer img{max-width:100%;max-height:82vh;border-radius:6px}
+.viewer .vb{display:flex;gap:10px;justify-content:center;padding:12px 12px calc(14px + env(safe-area-inset-bottom))}
+.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.menu-grid button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 4px;border-radius:14px;background:#f5f2ec;font-size:14px;font-weight:600}
+.menu-grid button span{font-size:28px}
+.patt{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.adopt{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.adopt button{background:#f5f2ec;border-radius:12px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.adopt b{font-size:22px;color:var(--pri);line-height:1.1}.adopt b small{font-size:12px;color:var(--ink3);font-weight:600}
+.adopt span{font-size:12px;color:var(--ink2);font-weight:600}
+#print{display:none}
+@media print{
+  body *{visibility:hidden}
+  #print,#print *{visibility:visible}
+  #print{display:block;position:absolute;left:0;top:0;width:100%}
+  .slip{border:1.5px dashed #888;padding:14px 18px;margin:0 0 10px;page-break-inside:avoid;font-size:14px}
+  .slip h4{margin:0 0 6px;font-size:16px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="print"></div>
+
+<script>
+/* ========= 設定：部署 GAS 後把網址貼在這裡（也可在登入畫面的「連線設定」填寫） ========= */
+var DEFAULT_GAS_URL = '';
+</script>
+
+<script>
+// ===================== 親師通 共用核心（前端示範模式與 GAS 共用同一份） =====================
+// 每班一份試算表，班級固定代碼
+var CLASS_ID = 'main';
+var TABLES = {
+  Classes:  ['classId','className','teacherName','teacherHash','quietStart','quietEnd','created'],
+  Students: ['classId','seat','name','parentName','pinHash','pinInit','updated','firstSeen','lastSeen','app','appSeen','device','notify'],
+  Posts:    ['id','classId','type','title','body','options','date','requireAck','created','att'],
+  Acks:     ['postId','classId','seat','choice','reply','ts'],
+  Messages: ['id','classId','seat','from','body','ts','readT','readP','kind','att'],
+  Files:    ['id','classId','seat','fileId','name','mime','size','thumb','ts','by'],
+  Leaves:   ['id','classId','seat','date','kind','reason','status','note','ts']
+};
+
+// 原創貼圖（伺服器驗證用，前端依此繪製）
+var STICKERS = [
+  ['s1','👍','收到'],['s2','🙏','謝謝老師'],['s3','😊','辛苦了'],['s4','👌','沒問題'],['s5','🙇','不好意思'],['s6','💪','加油'],
+  ['s7','👏','好棒'],['s8','❤️','感恩'],['s9','✅','已完成'],['s10','📚','功課寫完了'],['s11','🤒','孩子不舒服'],['s12','🤔','想請問'],
+  ['s13','☀️','早安'],['s14','🌙','晚安'],['s15','🎉','恭喜'],['s16','⏰','會準時'],['s17','🌟','表現優秀'],['s18','📝','請簽聯絡簿']
+];
+var MAX_FILE_B64 = 14000000; // 約 10MB
+function S_(v){ return v === null || v === undefined ? '' : String(v); }
+function E_(msg){ var e = new Error(msg); e.userMsg = true; return e; }
+function parseArr_(v){ try { var a = JSON.parse(S_(v) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+// 取出附件中繼資料並檢查歸屬（seat 為 '' 代表全班公告用）
+function pickFiles_(db, classId, ids, seat){
+  ids = (ids || []).slice(0, 9).map(S_);
+  return ids.map(function(id){
+    var f = db.all('Files').filter(function(r){ return S_(r.id) === id && S_(r.classId) === classId; })[0];
+    if (!f || S_(f.seat) !== S_(seat)) throw E_('附件已失效，請重新選擇');
+    return { id: id, name: S_(f.name), mime: S_(f.mime), size: Number(f.size) || 0, thumb: !!S_(f.thumb) };
+  });
+}
+function dropFiles_(env, db, pred){
+  db.all('Files').filter(pred).forEach(function(f){ try { if (env.deleteFile) env.deleteFile(S_(f.fileId)); } catch (e) {} });
+  db.remove('Files', pred);
+}
+function trimLen_(v, max, label){
+  v = S_(v).trim();
+  if (v.length > max) throw E_(label + '不可超過 ' + max + ' 字');
+  return v;
+}
+function genPin_(){ var s=''; for (var i=0;i<6;i++) s += Math.floor(Math.random()*10); return s; }
+function teacherHash_(env, classId, pw){ return env.sha256('T|' + classId + '|' + pw); }
+function pinHash_(env, classId, seat, pin){ return env.sha256('P|' + classId + '|' + seat + '|' + pin); }
+function findClass_(db, classId){
+  var c = db.all('Classes').filter(function(r){ return S_(r.classId) === S_(classId); })[0];
+  if (!c) throw E_('老師尚未完成班級設定');
+  return c;
+}
+function findStudent_(db, classId, seat){
+  return db.all('Students').filter(function(r){ return S_(r.classId) === S_(classId) && S_(r.seat) === S_(seat); })[0];
+}
+
+// token = payload.signature ；signature 綁定目前的密碼雜湊，改密碼後舊 token 自動失效
+var TOKEN_DAYS = 30;
+function makeToken_(env, role, classId, seat, credHash){
+  var payload = [role, classId, S_(seat), env.now() + TOKEN_DAYS*86400000].join('|');
+  return payload + '.' + env.sha256(env.secret + '|' + payload + '|' + S_(credHash).slice(0,16));
+}
+function verifyToken_(env, db, token){
+  token = S_(token);
+  var i = token.lastIndexOf('.');
+  if (i < 0) throw E_('請重新登入');
+  var payload = token.slice(0,i), sig = token.slice(i+1), a = payload.split('|');
+  if (a.length !== 4 || Number(a[3]) < env.now()) throw E_('登入已逾時，請重新登入');
+  var cls = findClass_(db, a[1]), cred;
+  if (a[0] === 't') cred = cls.teacherHash;
+  else { var st = findStudent_(db, a[1], a[2]); if (!st) throw E_('帳號已被移除'); cred = st.pinHash; }
+  if (env.sha256(env.secret + '|' + payload + '|' + S_(cred).slice(0,16)) !== sig) throw E_('請重新登入');
+  return { r: a[0], c: a[1], s: a[2], cls: cls };
+}
+
+var ACTIONS = {
+  info: { fn: function(env, db){
+    var c = db.all('Classes').filter(function(r){ return S_(r.classId) === CLASS_ID; })[0];
+    return { ready: !!c, className: S_(c && c.className), teacherName: S_(c && c.teacherName), appUrl: S_(env.appUrl) };
+  }},
+
+  teacherLogin: { fn: function(env, db, p){
+    var c = findClass_(db, S_(p.classId || CLASS_ID).trim());
+    if (teacherHash_(env, c.classId, S_(p.password)) !== S_(c.teacherHash)) throw E_('密碼錯誤');
+    return { token: makeToken_(env, 't', c.classId, '', c.teacherHash) };
+  }},
+
+  parentLogin: { fn: function(env, db, p){
+    var c = findClass_(db, S_(p.classId || CLASS_ID).trim());
+    var st = findStudent_(db, c.classId, S_(p.seat).trim());
+    if (!st) throw E_('查無此座號，請向老師確認');
+    if (pinHash_(env, c.classId, st.seat, S_(p.pin).trim()) !== S_(st.pinHash)) throw E_('密碼錯誤');
+    return { token: makeToken_(env, 'p', c.classId, st.seat, st.pinHash), mustChange: !!S_(st.pinInit) };
+  }},
+
+  changePin: { auth: 'p', write: true, fn: function(env, db, p, x){
+    var st = findStudent_(db, x.c, x.s);
+    if (pinHash_(env, x.c, x.s, S_(p.oldPin)) !== S_(st.pinHash)) throw E_('舊密碼錯誤');
+    var np = S_(p.newPin);
+    if (np.length < 4 || np.length > 20) throw E_('新密碼需 4–20 碼');
+    var h = pinHash_(env, x.c, x.s, np);
+    db.update('Students', function(r){ return S_(r.classId)===x.c && S_(r.seat)===x.s; }, { pinHash: h, pinInit: '', updated: env.now() });
+    return { token: makeToken_(env, 'p', x.c, x.s, h) };
+  }},
+
+  changeTeacherPw: { auth: 't', write: true, fn: function(env, db, p, x){
+    if (teacherHash_(env, x.c, S_(p.oldPw)) !== S_(x.cls.teacherHash)) throw E_('舊密碼錯誤');
+    if (S_(p.newPw).length < 4) throw E_('新密碼至少 4 碼');
+    var h = teacherHash_(env, x.c, S_(p.newPw));
+    db.update('Classes', function(r){ return S_(r.classId)===x.c; }, { teacherHash: h });
+    return { token: makeToken_(env, 't', x.c, '', h) };
+  }},
+
+  saveSettings: { auth: 't', write: true, fn: function(env, db, p, x){
+    var t = /^\d{2}:\d{2}$/;
+    if ((p.quietStart && !t.test(p.quietStart)) || (p.quietEnd && !t.test(p.quietEnd))) throw E_('時間格式錯誤');
+    db.update('Classes', function(r){ return S_(r.classId)===x.c; }, {
+      className: trimLen_(p.className, 30, '班級名稱') || x.c,
+      teacherName: trimLen_(p.teacherName, 20, '老師稱呼') || '導師',
+      quietStart: S_(p.quietStart), quietEnd: S_(p.quietEnd) });
+    return {};
+  }},
+
+  setStudents: { auth: 't', write: true, fn: function(env, db, p, x){
+    var list = p.list || [], created = 0, updated = 0;
+    if (list.length > 60) throw E_('一次最多 60 位');
+    list.forEach(function(it){
+      var seat = S_(it.seat).trim().replace(/^0+(?=\d)/, '');
+      if (!/^\d{1,3}$/.test(seat)) throw E_('座號格式錯誤：' + it.seat);
+      var name = trimLen_(it.name, 20, '姓名'), pn = trimLen_(it.parentName, 20, '家長稱呼');
+      if (!name) throw E_('座號 ' + seat + ' 缺少姓名');
+      if (findStudent_(db, x.c, seat)) {
+        db.update('Students', function(r){ return S_(r.classId)===x.c && S_(r.seat)===seat; }, { name: name, parentName: pn, updated: env.now() });
+        updated++;
+      } else {
+        var pin = genPin_();
+        db.insert('Students', { classId: x.c, seat: seat, name: name, parentName: pn,
+          pinHash: pinHash_(env, x.c, seat, pin), pinInit: pin, updated: env.now() });
+        created++;
+      }
+    });
+    return { created: created, updated: updated };
+  }},
+
+  resetPin: { auth: 't', write: true, fn: function(env, db, p, x){
+    var seat = S_(p.seat);
+    if (!findStudent_(db, x.c, seat)) throw E_('查無此座號');
+    var pin = genPin_();
+    db.update('Students', function(r){ return S_(r.classId)===x.c && S_(r.seat)===seat; },
+      { pinHash: pinHash_(env, x.c, seat, pin), pinInit: pin, updated: env.now() });
+    return { pin: pin };
+  }},
+
+  removeStudent: { auth: 't', write: true, fn: function(env, db, p, x){
+    var seat = S_(p.seat), m = function(r){ return S_(r.classId)===x.c && S_(r.seat)===seat; };
+    dropFiles_(env, db, m);
+    db.remove('Students', m); db.remove('Messages', m); db.remove('Acks', m); db.remove('Leaves', m);
+    return {};
+  }},
+
+  post: { auth: 't', write: true, fn: function(env, db, p, x){
+    var type = S_(p.type);
+    if (['announce','contact','poll'].indexOf(type) < 0) throw E_('類型錯誤');
+    var opts = [];
+    if (type === 'poll') {
+      opts = (p.options || []).map(function(o){ return trimLen_(o, 40, '選項'); }).filter(Boolean);
+      if (opts.length < 2) throw E_('回條至少要 2 個選項');
+    }
+    var body = trimLen_(p.body, 3000, '內容');
+    var title = trimLen_(p.title, 60, '標題');
+    if (type !== 'contact' && !title) throw E_('請輸入標題');
+    var att = pickFiles_(db, x.c, p.att, '');
+    if (!body && type !== 'poll' && !att.length) throw E_('請輸入內容');
+    var date = S_(p.date);
+    if (type === 'contact' && !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw E_('請選擇日期');
+    var id = env.uid();
+    db.insert('Posts', { id: id, classId: x.c, type: type, title: title, body: body, options: JSON.stringify(opts),
+      date: date, requireAck: (type !== 'announce' || p.requireAck) ? '1' : '0', created: env.now(), att: att.length ? JSON.stringify(att) : '' });
+    return { id: id };
+  }},
+
+  deletePost: { auth: 't', write: true, fn: function(env, db, p, x){
+    var id = S_(p.id);
+    db.all('Posts').filter(function(r){ return S_(r.id)===id && S_(r.classId)===x.c; }).forEach(function(r){
+      var ids = parseArr_(r.att).map(function(a){ return S_(a.id); });
+      dropFiles_(env, db, function(f){ return S_(f.classId)===x.c && ids.indexOf(S_(f.id)) >= 0; });
+    });
+    db.remove('Posts', function(r){ return S_(r.id)===id && S_(r.classId)===x.c; });
+    db.remove('Acks', function(r){ return S_(r.postId)===id && S_(r.classId)===x.c; });
+    return {};
+  }},
+
+  ack: { auth: 'p', write: true, fn: function(env, db, p, x){
+    var id = S_(p.postId);
+    var post = db.all('Posts').filter(function(r){ return S_(r.id)===id && S_(r.classId)===x.c; })[0];
+    if (!post) throw E_('此訊息已被刪除');
+    var choice = '';
+    if (post.type === 'poll') {
+      var opts = JSON.parse(S_(post.options) || '[]');
+      choice = S_(p.choice);
+      if (opts.indexOf(choice) < 0) throw E_('請選擇一個選項');
+    }
+    var reply = trimLen_(p.reply, 500, '回覆');
+    var m = function(r){ return S_(r.postId)===id && S_(r.classId)===x.c && S_(r.seat)===x.s; };
+    if (db.all('Acks').some(m)) db.update('Acks', m, { choice: choice, reply: reply, ts: env.now() });
+    else db.insert('Acks', { postId: id, classId: x.c, seat: x.s, choice: choice, reply: reply, ts: env.now() });
+    return {};
+  }},
+
+  sendMsg: { auth: '*', write: true, fn: function(env, db, p, x){
+    var seat = x.r === 't' ? S_(p.seat) : x.s;
+    if (!findStudent_(db, x.c, seat)) throw E_('查無此家長');
+    var kind = S_(p.kind) === 'sticker' ? 'sticker' : 'text';
+    var body = trimLen_(p.body, 2000, '訊息'), att = [];
+    if (kind === 'sticker') {
+      if (!STICKERS.some(function(s){ return s[0] === body; })) throw E_('貼圖不存在');
+    } else {
+      att = pickFiles_(db, x.c, p.att, seat);
+      if (!body && !att.length) throw E_('請輸入訊息');
+    }
+    var id = env.uid();
+    db.insert('Messages', { id: id, classId: x.c, seat: seat, from: x.r, body: body, ts: env.now(),
+      readT: x.r === 't' ? '1' : '0', readP: x.r === 'p' ? '1' : '0', kind: kind, att: att.length ? JSON.stringify(att) : '' });
+    return { id: id };
+  }},
+
+  markRead: { auth: '*', write: true, fn: function(env, db, p, x){
+    var seat = x.r === 't' ? S_(p.seat) : x.s;
+    var field = x.r === 't' ? 'readT' : 'readP', other = x.r === 't' ? 'p' : 't';
+    var m = function(r){ return S_(r.classId)===x.c && S_(r.seat)===seat && S_(r.from)===other && S_(r[field])!=='1'; };
+    if (!db.all('Messages').some(m)) return { n: 0 };
+    var patch = {}; patch[field] = '1';
+    return { n: db.update('Messages', m, patch) };
+  }},
+
+  leave: { auth: 'p', write: true, fn: function(env, db, p, x){
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(S_(p.date))) throw E_('請選擇日期');
+    var kind = S_(p.kind);
+    if (['病假','事假','喪假','公假','其他'].indexOf(kind) < 0) throw E_('假別錯誤');
+    var id = env.uid();
+    db.insert('Leaves', { id: id, classId: x.c, seat: x.s, date: S_(p.date) + (p.dateEnd && p.dateEnd !== p.date ? '~' + S_(p.dateEnd) : ''),
+      kind: kind, reason: trimLen_(p.reason, 300, '事由'), status: 'pending', note: '', ts: env.now() });
+    return { id: id };
+  }},
+
+  cancelLeave: { auth: 'p', write: true, fn: function(env, db, p, x){
+    var id = S_(p.id);
+    var n = db.remove('Leaves', function(r){ return S_(r.id)===id && S_(r.classId)===x.c && S_(r.seat)===x.s && S_(r.status)==='pending'; });
+    if (!n) throw E_('老師已處理，無法取消');
+    return {};
+  }},
+
+  decideLeave: { auth: 't', write: true, fn: function(env, db, p, x){
+    var st = S_(p.status);
+    if (['approved','rejected'].indexOf(st) < 0) throw E_('狀態錯誤');
+    var id = S_(p.id);
+    db.update('Leaves', function(r){ return S_(r.id)===id && S_(r.classId)===x.c; }, { status: st, note: trimLen_(p.note, 200, '備註') });
+    return {};
+  }},
+
+  upload: { auth: '*', write: true, fn: function(env, db, p, x){
+    var seat = x.r === 't' ? S_(p.seat) : x.s;
+    if (seat && !findStudent_(db, x.c, seat)) throw E_('查無此家長');
+    var data = S_(p.data), thumb = S_(p.thumb);
+    if (!data) throw E_('檔案是空的');
+    if (data.length > MAX_FILE_B64) throw E_('檔案太大（上限 10MB）');
+    if (thumb.length > 45000) thumb = '';
+    var name = S_(p.name).replace(/[\\/:*?"<>|]/g, '_').slice(0, 100) || 'file';
+    var mime = S_(p.mime).slice(0, 100) || 'application/octet-stream';
+    var fileId = env.saveFile(name, mime, data);
+    var id = env.uid(), size = Math.round(data.length * 3 / 4);
+    db.insert('Files', { id: id, classId: x.c, seat: seat, fileId: fileId, name: name, mime: mime, size: size, thumb: thumb, ts: env.now(), by: x.r });
+    return { id: id, name: name, mime: mime, size: size };
+  }},
+
+  file: { auth: '*', fn: function(env, db, p, x){
+    var id = S_(p.id);
+    var f = db.all('Files').filter(function(r){ return S_(r.id) === id && S_(r.classId) === x.c; })[0];
+    if (!f || (x.r === 'p' && S_(f.seat) !== '' && S_(f.seat) !== x.s)) throw E_('找不到檔案');
+    if (p.thumb && S_(f.thumb)) return { thumb: S_(f.thumb) };
+    return { data: env.readFile(S_(f.fileId)), mime: S_(f.mime), name: S_(f.name) };
+  }},
+
+  sync: { auth: '*', fn: function(env, db, p, x){
+    var c = x.cls, isT = x.r === 't';
+    var inClass = function(r){ return S_(r.classId) === x.c; };
+    var mine = function(r){ return isT || S_(r.seat) === x.s; };
+    if (!isT && p.client) touchParent_(env, db, x, p.client);
+    var students = db.all('Students').filter(inClass);
+    var out = {
+      serverTime: env.now(),
+      cls: { classId: c.classId, className: S_(c.className), teacherName: S_(c.teacherName), quietStart: S_(c.quietStart), quietEnd: S_(c.quietEnd), appUrl: S_(env.appUrl) },
+      me: { role: x.r, seat: x.s },
+      posts: db.all('Posts').filter(inClass).map(function(r){
+        return { id: S_(r.id), type: S_(r.type), title: S_(r.title), body: S_(r.body), options: JSON.parse(S_(r.options) || '[]'),
+          date: S_(r.date), requireAck: S_(r.requireAck) === '1', created: Number(r.created), att: parseArr_(r.att) };
+      }).sort(function(a,b){ return b.created - a.created; }).slice(0, 300),
+      acks: db.all('Acks').filter(inClass).filter(mine).map(function(r){
+        return { postId: S_(r.postId), seat: S_(r.seat), choice: S_(r.choice), reply: S_(r.reply), ts: Number(r.ts) };
+      }),
+      messages: db.all('Messages').filter(inClass).filter(mine).map(function(r){
+        return { id: S_(r.id), seat: S_(r.seat), from: S_(r.from), body: S_(r.body), ts: Number(r.ts), readT: S_(r.readT)==='1', readP: S_(r.readP)==='1', kind: S_(r.kind) || 'text', att: parseArr_(r.att) };
+      }),
+      leaves: db.all('Leaves').filter(inClass).filter(mine).map(function(r){
+        return { id: S_(r.id), seat: S_(r.seat), date: S_(r.date), kind: S_(r.kind), reason: S_(r.reason), status: S_(r.status), note: S_(r.note), ts: Number(r.ts) };
+      }).sort(function(a,b){ return b.ts - a.ts; })
+    };
+    if (isT) {
+      out.students = students.map(function(r){
+        return { seat: S_(r.seat), name: S_(r.name), parentName: S_(r.parentName), pinInit: S_(r.pinInit),
+          firstSeen: Number(r.firstSeen) || 0, lastSeen: Number(r.lastSeen) || 0, app: S_(r.app) === '1', appSeen: Number(r.appSeen) || 0,
+          device: S_(r.device), notify: S_(r.notify) === '1' };
+      }).sort(function(a,b){ return Number(a.seat) - Number(b.seat); });
+    } else {
+      var me = students.filter(function(r){ return S_(r.seat) === x.s; })[0];
+      out.me.name = S_(me && me.name); out.me.parentName = S_(me && me.parentName);
+      out.me.mustChange = !!S_(me && me.pinInit);
+    }
+    return out;
+  }}
+};
+
+// 家長使用狀況：上線時間、是否裝成 App、裝置、通知（只在有變化或隔 10 分鐘才寫入，減少試算表寫入）
+function touchParent_(env, db, x, c){
+  var st = findStudent_(db, x.c, x.s); if (!st) return;
+  var now = env.now(), patch = {}, dev = S_(c.dev).slice(0, 10), standalone = !!c.standalone;
+  if (!Number(st.firstSeen)) patch.firstSeen = now;
+  if (now - (Number(st.lastSeen) || 0) > 600000) patch.lastSeen = now;
+  if (standalone && S_(st.app) !== '1') patch.app = '1';
+  if (standalone && now - (Number(st.appSeen) || 0) > 600000) patch.appSeen = now;
+  if (dev && dev !== S_(st.device)) patch.device = dev;
+  var nf = c.notify ? '1' : '0';
+  if (nf !== S_(st.notify)) patch.notify = nf;
+  if (!Object.keys(patch).length) return;
+  try { db.update('Students', function(r){ return S_(r.classId) === x.c && S_(r.seat) === x.s; }, patch); } catch (e) {}
+}
+function coreHandle(env, db, action, p){
+  var A = ACTIONS[action];
+  if (!A) throw E_('未知的動作');
+  var x = null;
+  if (A.auth) {
+    x = verifyToken_(env, db, p && p.token);
+    if (A.auth !== '*' && A.auth !== x.r) throw E_(A.auth === 't' ? '需要老師權限' : '僅限家長操作');
+  }
+  return A.fn(env, db, p || {}, x);
+}
+// ===================== 核心結束 =====================
+
+</script>
+
+<script>
+/* ===================== 示範模式（瀏覽器內模擬後端） ===================== */
+function sha256Sync(str){
+  var b = unescape(encodeURIComponent(str)), K = [], H = [], i, j;
+  var isP = function(n){ for (var f=2; f*f<=n; f++) if (n%f===0) return false; return true; };
+  var fr = function(x){ return ((x - Math.floor(x)) * 4294967296) | 0; };
+  for (var n=2, c=0; c<64; n++) if (isP(n)) { if (c<8) H[c] = fr(Math.pow(n, 1/2)); K[c++] = fr(Math.pow(n, 1/3)); }
+  var w = [], l = b.length * 8;
+  b += '\x80'; while (b.length % 64 !== 56) b += '\x00';
+  var words = []; for (i=0; i<b.length; i++) words[i>>2] |= b.charCodeAt(i) << ((3 - i%4) * 8);
+  words.push(Math.floor(l / 4294967296)); words.push(l | 0);
+  var r = function(x, n){ return (x >>> n) | (x << (32 - n)); };
+  for (j=0; j<words.length; j+=16) {
+    var a=H[0],bb=H[1],cc=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for (i=0; i<64; i++) {
+      if (i<16) w[i] = words[j+i] | 0;
+      else { var s0 = r(w[i-15],7)^r(w[i-15],18)^(w[i-15]>>>3), s1 = r(w[i-2],17)^r(w[i-2],19)^(w[i-2]>>>10); w[i] = (w[i-16]+s0+w[i-7]+s1) | 0; }
+      var t1 = (h + (r(e,6)^r(e,11)^r(e,25)) + ((e&f)^(~e&g)) + K[i] + w[i]) | 0;
+      var t2 = ((r(a,2)^r(a,13)^r(a,22)) + ((a&bb)^(a&cc)^(bb&cc))) | 0;
+      h=g; g=f; f=e; e=(d+t1)|0; d=cc; cc=bb; bb=a; a=(t1+t2)|0;
+    }
+    H[0]=(H[0]+a)|0; H[1]=(H[1]+bb)|0; H[2]=(H[2]+cc)|0; H[3]=(H[3]+d)|0; H[4]=(H[4]+e)|0; H[5]=(H[5]+f)|0; H[6]=(H[6]+g)|0; H[7]=(H[7]+h)|0;
+  }
+  return H.map(function(x){ return ('00000000' + (x >>> 0).toString(16)).slice(-8); }).join('');
+}
+var DEMO_KEY = 'xj_pt_demo_db_v3';
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+function lsDel(k){ try { localStorage.removeItem(k); } catch(e){} }
+var demoMem = null;
+function demoDB(){
+  if (!demoMem) { try { demoMem = JSON.parse(lsGet(DEMO_KEY) || 'null'); } catch(e){} }
+  if (!demoMem) { demoMem = {}; seedDemo(); }
+  var save = function(){ lsSet(DEMO_KEY, JSON.stringify(demoMem)); };
+  return {
+    all: function(t){ return demoMem[t] || (demoMem[t] = []); },
+    insert: function(t, o){ this.all(t).push(JSON.parse(JSON.stringify(o, function(k,v){ return v === undefined ? '' : (typeof v === 'number' || typeof v === 'boolean' ? String(v) : v); }))); save(); },
+    update: function(t, p, pa){ var n=0; this.all(t).forEach(function(o){ if (p(o)) { for (var k in pa) o[k] = String(pa[k]); n++; } }); save(); return n; },
+    remove: function(t, p){ var a = this.all(t), b = a.filter(function(o){ return !p(o); }); demoMem[t] = b; save(); return a.length - b.length; }
+  };
+}
+var demoEnv = { sha256: sha256Sync, now: function(){ return Date.now(); },
+  uid: function(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }, secret: 'demo-secret', adminKey: 'demo',
+  saveFile: function(n, m, b64){ var id = 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); demoFiles()[id] = b64; saveDemoFiles(); return id; },
+  readFile: function(id){ var d = demoFiles()[id]; if (!d) throw E_('示範檔案已遺失'); return d; },
+  deleteFile: function(id){ delete demoFiles()[id]; saveDemoFiles(); } };
+var demoFileMem = null;
+function demoFiles(){ if (!demoFileMem) { try { demoFileMem = JSON.parse(lsGet(DEMO_KEY + '_files') || '{}'); } catch(e){ demoFileMem = {}; } } return demoFileMem; }
+function saveDemoFiles(){ try { localStorage.setItem(DEMO_KEY + '_files', JSON.stringify(demoFileMem)); } catch(e){ /* 超過瀏覽器容量時只留在記憶體 */ } }
+function seedDemo(){
+  var db = { all: function(t){ return demoMem[t] || (demoMem[t] = []); }, insert: function(t,o){ var c={}; for (var k in o) c[k]=String(o[k]); this.all(t).push(c); } };
+  var now = Date.now(), H = 3600000, D = 86400000, e = demoEnv;
+  db.insert('Classes', { classId:'main', className:'五年一班（示範）', teacherName:'蔡老師', teacherHash: teacherHash_(e,'main','1234'), quietStart:'21:00', quietEnd:'07:00', created: now });
+  var names = [['王小明','王爸爸'],['林小美','林媽媽'],['陳大文','陳媽媽'],['黃安安','黃爸爸'],['張可可','張媽媽'],['李樂樂','李奶奶']];
+  names.forEach(function(n, i){ var seat = String(i+1);
+    var on = i < 4;
+    db.insert('Students', { classId:'main', seat: seat, name: n[0], parentName: n[1], pinHash: pinHash_(e,'main',seat,'1111'), pinInit: on ? '' : '1111', updated: now,
+      firstSeen: on ? now - 9*D : '', lastSeen: on ? now - [1, 30, 50, 200][i] * H : '', app: (i === 1 || i === 2) ? '1' : '', appSeen: '', device: on ? ['iPhone','Android','iPhone','Windows'][i] : '', notify: i === 1 ? '1' : '' }); });
+  var today = new Date(now - new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+  var yest = new Date(now - D - new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+  db.insert('Posts', { id:'p1', classId:'main', type:'announce', title:'下週三校外教學注意事項', body:'11/26（三）校外教學至嘉義市立博物館。\n請攜帶：水壺、帽子、雨具、午餐餐具。\n當天 7:50 前到校集合，穿著運動服。', options:'[]', date:'', requireAck:'1', created: now - 5*H });
+  db.insert('Posts', { id:'p2', classId:'main', type:'poll', title:'期末親師座談會出席調查', body:'12/13（六）上午 9:00 於本班教室舉行，請勾選出席意願。', options: JSON.stringify(['爸爸出席','媽媽出席','其他家人出席','無法出席']), date:'', requireAck:'1', created: now - 26*H });
+  db.insert('Posts', { id:'c1', classId:'main', type:'contact', title:'', body:'1. 數習 P.42–43\n2. 國語圈詞 L9\n3. 帶回訂正的英語考卷，請家長簽名\n4. 明天體育課，請穿運動鞋', options:'[]', date: today, requireAck:'1', created: now - 2*H });
+  db.insert('Posts', { id:'c2', classId:'main', type:'contact', title:'', body:'1. 數學課本 P.60 習題\n2. 閱讀《小王子》第 3 章', options:'[]', date: yest, requireAck:'1', created: now - 26*H });
+  db.insert('Acks', { postId:'p1', classId:'main', seat:'2', choice:'', reply:'', ts: now - 4*H });
+  db.insert('Acks', { postId:'p1', classId:'main', seat:'3', choice:'', reply:'', ts: now - 3*H });
+  db.insert('Acks', { postId:'p2', classId:'main', seat:'2', choice:'媽媽出席', reply:'', ts: now - 20*H });
+  db.insert('Acks', { postId:'p2', classId:'main', seat:'4', choice:'無法出席', reply:'當天要加班，抱歉', ts: now - 18*H });
+  ['1','2','3','5'].forEach(function(s){ db.insert('Acks', { postId:'c2', classId:'main', seat:s, choice:'', reply: s==='3' ? '數學第 5 題孩子不太會，再麻煩老師' : '', ts: now - 14*H }); });
+  db.insert('Messages', { id:'m1', classId:'main', seat:'1', from:'p', body:'老師好，小明這兩天有點咳嗽，藥放在書包前袋，午餐後麻煩提醒他吃，謝謝！', ts: now - 3*H, readT:'0', readP:'1' });
+  db.insert('Messages', { id:'m2', classId:'main', seat:'3', from:'t', body:'陳媽媽好，大文今天數學小考進步很多，在家也請多鼓勵他喔！', ts: now - 28*H, readT:'1', readP:'1' });
+  db.insert('Messages', { id:'m3', classId:'main', seat:'3', from:'p', body:'謝謝老師！他回家很開心 😊', ts: now - 27*H, readT:'1', readP:'1' });
+  db.insert('Messages', { id:'m4', classId:'main', seat:'3', from:'p', body:'s2', kind:'sticker', ts: now - 27*H + 60000, readT:'1', readP:'1' });
+  db.insert('Messages', { id:'m5', classId:'main', seat:'3', from:'t', body:'數學複習可以用均一教育平台，陪孩子一起看：\nhttps://www.junyiacademy.org/', ts: now - 26*H, readT:'1', readP:'1' });
+  db.insert('Leaves', { id:'l1', classId:'main', seat:'5', date: today, kind:'病假', reason:'發燒 38 度，帶去看醫生', status:'pending', note:'', ts: now - 6*H });
+  lsSet(DEMO_KEY, JSON.stringify(demoMem));
+}
+</script>
+
+<script>
+/* ===================== 前端主程式 ===================== */
+var IN_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+var S = { info:null, token:null, demo:false, data:null, tab:'news', thread:null, draft:{}, sig:'', seen:null, loginRole:'p', timer:null };
+var SESSION_KEY = 'xj_pt_session', URL_KEY = 'xj_pt_url', LAST_KEY = 'xj_pt_last';
+var $ = function(s, el){ return (el || document).querySelector(s); };
+var root = $('#root');
+
+function gasUrl(){ return lsGet(URL_KEY) || DEFAULT_GAS_URL; }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function linkify(s){ return esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
+function pad(n){ return (n < 10 ? '0' : '') + n; }
+function todayStr(d){ d = d || new Date(); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+var WK = '日一二三四五六';
+function fmtDate(s){ if (!s) return ''; var p = s.split('~'); return p.map(function(x){ var d = new Date(x + 'T00:00:00'); return (d.getMonth()+1) + '/' + d.getDate() + '（' + WK[d.getDay()] + '）'; }).join(' ～ '); }
+function fmtTime(ts){
+  var d = new Date(ts), n = new Date(), hm = pad(d.getHours()) + ':' + pad(d.getMinutes());
+  if (todayStr(d) === todayStr(n)) return hm;
+  var y = new Date(n.getTime() - 86400000); if (todayStr(d) === todayStr(y)) return '昨天 ' + hm;
+  return (d.getMonth()+1) + '/' + d.getDate() + ' ' + hm;
+}
+function ICON(n){
+  var p = {
+    news:'<path d="M4 5h13v14H6a2 2 0 0 1-2-2V5Z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/>',
+    book:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4Z"/><path d="M5 17a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/>',
+    chat:'<path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4V6Z"/>',
+    leave:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="m9 15 2 2 4-4"/>',
+    gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/>',
+    user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+    plus:'<path d="M12 5v14M5 12h14"/>', send:'<path d="m4 12 16-8-6 16-3-7-7-1Z"/>',
+    back:'<path d="m15 18-6-6 6-6"/>', refresh:'<path d="M20 12a8 8 0 1 1-2.3-5.7L20 8"/><path d="M20 3v5h-5"/>',
+    bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4l2-2Z"/><path d="M10 21h4"/>',
+    help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6"/><path d="M12 17h.01" stroke-width="2.6"/>',
+    logo:'<path d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-6l-4 4v-4a3 3 0 0 1-3-3V7Z"/><path d="M9 10.5h.01M12 10.5h.01M15 10.5h.01" stroke-width="2.6"/>'
+  }[n];
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>';
+}
+
+/* ---------- API ---------- */
+function api(action, p){
+  p = p || {}; if (S.token && !p.token) p.token = S.token;
+  if (S.demo) {
+    return new Promise(function(res, rej){
+      setTimeout(function(){ try { res(coreHandle(demoEnv, demoDB(), action, p)); } catch(e){ rej(e); } }, 120);
+    });
+  }
+  p.action = action;
+  if (IN_GAS) {
+    return new Promise(function(res, rej){
+      google.script.run.withSuccessHandler(function(j){ if (j && j.ok) res(j.data); else rej(new Error((j && j.error) || '發生錯誤')); })
+        .withFailureHandler(function(e){ rej(new Error('連線失敗，請稍後再試')); }).apiCall(p);
+    });
+  }
+  var url = gasUrl();
+  if (!url) return Promise.reject(new Error('尚未設定伺服器網址，請點「連線設定」'));
+  p.action = action;
+  return fetch(url, { method:'POST', body: JSON.stringify(p) })
+    .then(function(r){ return r.json(); })
+    .catch(function(){ throw new Error('網路連線失敗，請稍後再試'); })
+    .then(function(j){ if (!j.ok) throw new Error(j.error || '發生錯誤'); return j.data; });
+}
+function authFail(e){ return /重新登入|逾時|已被移除/.test(e.message); }
+
+/* ---------- UI helpers ---------- */
+function toast(msg){ var t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(function(){ t.remove(); }, 2400); }
+function modal(html, onMount){
+  var m = document.createElement('div'); m.className = 'mask';
+  m.innerHTML = '<div class="sheet">' + html + '</div>';
+  m.addEventListener('click', function(e){ if (e.target === m) close(); });
+  function close(){ m.remove(); }
+  document.body.appendChild(m);
+  m.close = close;
+  if (onMount) onMount(m, close);
+  return m;
+}
+function confirmBox(msg, okText, danger){
+  return new Promise(function(res){
+    modal('<h3>請確認</h3><div class="body">' + esc(msg) + '</div><div class="acts"><button class="btn line" data-v="0">取消</button><button class="btn ' + (danger ? 'bad' : '') + '" data-v="1">' + esc(okText || '確定') + '</button></div>',
+      function(m, close){ m.querySelectorAll('[data-v]').forEach(function(b){ b.onclick = function(){ close(); res(b.dataset.v === '1'); }; }); });
+  });
+}
+function busy(btn, on){ if (!btn) return; btn.disabled = on; if (on) { btn.dataset.t = btn.innerHTML; btn.innerHTML = '處理中…'; } else if (btn.dataset.t) btn.innerHTML = btn.dataset.t; }
+function run(btn, promise, okMsg){
+  busy(btn, true);
+  return promise.then(function(r){ busy(btn, false); if (okMsg) toast(okMsg); return r; })
+    .catch(function(e){ busy(btn, false); if (authFail(e)) { logout(); toast(e.message); } else toast(e.message); throw e; });
+}
+
+/* ---------- Session ---------- */
+function saveSession(){ lsSet(SESSION_KEY, JSON.stringify({ token: S.token, demo: S.demo })); }
+function logout(){ S.token = null; S.data = null; S.sig = ''; S.seen = null; S.thread = null; clearInterval(S.timer); lsDel(SESSION_KEY); document.title = '興嘉親師通'; if (S.demo) renderLogin(); else loadInfo(); }
+function startSession(token){
+  S.token = token; saveSession(); S.tab = 'news'; S.thread = null; S.justIn = true;
+  renderShell(); sync(true);
+  clearInterval(S.timer); S.timer = setInterval(function(){ sync(false); }, S.demo ? 8000 : 30000);
+}
+document.addEventListener('visibilitychange', function(){ if (!document.hidden && S.token) sync(false); });
+
+/* ---------- Sync ---------- */
+var syncing = false;
+function setDot(c){ var d = $('#dot'); if (d) d.className = 'sync-dot ' + (c || ''); }
+function sync(force){
+  if (!S.token || syncing) return Promise.resolve();
+  syncing = true; setDot('busy');
+  return api('sync', { client: clientInfo() }).then(function(d){
+    syncing = false; setDot('');
+    var sig = JSON.stringify([d.posts, d.acks, d.messages, d.leaves, d.students, d.cls, d.me]);
+    notifyNew(d);
+    S.data = d;
+    if (S.justIn) { S.justIn = false; if (d.me.role === 't' && !(d.students || []).length) S.tab = 'admin'; }
+    if (force || sig !== S.sig) { S.sig = sig; renderShell(); }
+  }).catch(function(e){
+    syncing = false; setDot('err');
+    if (authFail(e)) { logout(); toast(e.message); }
+    else if (force) toast(e.message);
+  });
+}
+function idsOf(d){
+  var me = d.me.role, s = {};
+  d.posts.forEach(function(p){ s['p' + p.id] = 1; });
+  d.messages.forEach(function(m){ if (m.from !== me) s['m' + m.id] = 1; });
+  d.leaves.forEach(function(l){ s['l' + l.id + l.status] = 1; });
+  return s;
+}
+function notifyNew(d){
+  var ids = idsOf(d);
+  if (S.seen) {
+    var fresh = Object.keys(ids).filter(function(k){ return !S.seen[k]; });
+    if (fresh.length && document.hidden && window.Notification && Notification.permission === 'granted') {
+      try { new Notification('興嘉親師通', { body: '有 ' + fresh.length + ' 則新訊息' }); } catch(e){}
+    }
+  }
+  S.seen = ids;
+}
+
+
+/* ===================== 附件、貼圖、連結 ===================== */
+var ATT = { cache:{}, pend:{}, blob:{} };
+function fmtSize(n){ n = Number(n) || 0; return n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; }
+function isImg(m){ return /^image\//.test(m || ''); }
+function b64Blob(b64, mime){ var s = atob(b64), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return new Blob([a], { type: mime || 'application/octet-stream' }); }
+function attFetch(id, thumb){
+  var k = (thumb ? 't' : 'f') + id;
+  if (ATT.cache[k]) return ATT.cache[k];
+  var pr = api('file', { id: id, thumb: !!thumb }).then(function(r){
+    if (r.thumb) return 'data:image/jpeg;base64,' + r.thumb;
+    var blob = b64Blob(r.data, r.mime), u = URL.createObjectURL(blob);
+    ATT.blob[id] = blob;
+    ATT.cache['f' + id] = Promise.resolve(u);
+    return u;
+  });
+  pr.catch(function(){ delete ATT.cache[k]; });
+  return (ATT.cache[k] = pr);
+}
+function hydrate(scope){
+  (scope || document).querySelectorAll('img[data-att]:not([data-h])').forEach(function(img){
+    img.setAttribute('data-h', '1');
+    attFetch(img.dataset.att, img.dataset.th === '1').then(function(u){
+      img.onload = function(){ if (S.stick && S.tab === 'chat') window.scrollTo(0, document.body.scrollHeight); };
+      img.src = u; img.classList.add('ok'); })
+      .catch(function(){ img.alt = '載入失敗'; img.classList.add('bad'); });
+  });
+}
+var FILE_ICON = function(m, n){
+  if (/pdf/.test(m)) return '📕'; if (/word|document/.test(m) || /\.docx?$/i.test(n)) return '📘';
+  if (/sheet|excel|csv/.test(m) || /\.xlsx?$/i.test(n)) return '📗'; if (/presentation|powerpoint/.test(m) || /\.pptx?$/i.test(n)) return '📙';
+  if (/^audio/.test(m)) return '🎵'; if (/^video/.test(m)) return '🎬'; if (/zip|rar|7z/.test(m)) return '🗜️'; return '📄';
+};
+function attHtml(list){
+  if (!list || !list.length) return '';
+  var imgs = list.filter(function(a){ return isImg(a.mime); }), files = list.filter(function(a){ return !isImg(a.mime); });
+  var h = '';
+  if (imgs.length) h += '<div class="att-grid n' + Math.min(imgs.length, 3) + '">' + imgs.map(function(a){
+    return '<button class="att-img" data-act="viewImg" data-id="' + esc(a.id) + '"><img data-att="' + esc(a.id) + '" data-th="' + (a.thumb ? 1 : 0) + '" alt=""></button>'; }).join('') + '</div>';
+  h += files.map(function(a){
+    return '<button class="att-file" data-act="dlFile" data-id="' + esc(a.id) + '" data-name="' + esc(a.name) + '"><span class="fi">' + FILE_ICON(a.mime, a.name) + '</span><span class="fn"><b>' + esc(a.name) + '</b><small>' + fmtSize(a.size) + '・點一下下載</small></span></button>'; }).join('');
+  return h;
+}
+function linkCards(text){
+  var urls = (String(text || '').match(/https?:\/\/[^\s<]+/g) || []).slice(0, 2);
+  return urls.map(function(u){
+    var yt = u.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/), host = '';
+    try { host = new URL(u).hostname.replace(/^www\./, ''); } catch(e){ host = u; }
+    if (yt) return '<a class="lcard" href="' + esc(u) + '" target="_blank" rel="noopener"><img src="https://img.youtube.com/vi/' + yt[1] + '/mqdefault.jpg" alt=""><span><b>▶ YouTube 影片</b><small>' + esc(host) + '</small></span></a>';
+    return '<a class="lcard" href="' + esc(u) + '" target="_blank" rel="noopener"><span class="lic">🔗</span><span><b>' + esc(host) + '</b><small>' + esc(u.length > 60 ? u.slice(0, 60) + '…' : u) + '</small></span></a>';
+  }).join('');
+}
+var STK_BG = ['#fde7c8','#e3efef','#fbe0e4','#e5ecfb','#e6f4dc','#f3e6fb'];
+function stickerHtml(id){
+  var i = 0, s = STICKERS.filter(function(x, k){ if (x[0] === id) { i = k; return true; } return false; })[0];
+  if (!s) return '';
+  return '<div class="stk" style="background:' + STK_BG[i % STK_BG.length] + '"><span class="se">' + s[1] + '</span><span class="st">' + esc(s[2]) + '</span></div>';
+}
+function msgPreview(m){
+  if (m.kind === 'sticker') { var s = STICKERS.filter(function(x){ return x[0] === m.body; })[0]; return '[貼圖] ' + (s ? s[2] : ''); }
+  var a = m.att || [], im = a.filter(function(x){ return isImg(x.mime); }).length;
+  if (m.body) return m.body;
+  if (im) return '[圖片' + (im > 1 ? ' ×' + im : '') + ']';
+  if (a.length) return '[檔案] ' + a[0].name;
+  return '';
+}
+/* 檔案前處理：圖片壓縮＋縮圖 */
+function readDataURL(file){ return new Promise(function(res, rej){ var r = new FileReader(); r.onload = function(){ res(r.result); }; r.onerror = rej; r.readAsDataURL(file); }); }
+function loadImg(src){ return new Promise(function(res, rej){ var i = new Image(); i.onload = function(){ res(i); }; i.onerror = rej; i.src = src; }); }
+function shrink(img, max, q){
+  var w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+  var c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k);
+  var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', q);
+}
+function prepareFile(file){
+  if (file.size > 10 * 1048576 && !isImg(file.type)) return Promise.reject(new Error(file.name + ' 超過 10MB'));
+  return readDataURL(file).then(function(url){
+    var out = { name: file.name || 'file', mime: file.type || 'application/octet-stream', data: url.split(',')[1], thumb: '' };
+    if (!isImg(file.type) || /gif|svg/.test(file.type)) {
+      if (out.data.length > 14000000) throw new Error(file.name + ' 超過 10MB');
+      return out;
+    }
+    return loadImg(url).then(function(img){
+      var big = shrink(img, 1600, 0.82), th = shrink(img, 360, 0.6), q = 0.5;
+      while (th.length > 44000 && q > 0.2) { th = shrink(img, 260, q); q -= 0.1; }
+      out.data = big.split(',')[1]; out.mime = 'image/jpeg'; out.thumb = th.length < 44000 ? th.split(',')[1] : '';
+      out.name = out.name.replace(/\.\w+$/, '') + '.jpg';
+      return out;
+    }).catch(function(){ return out; });
+  });
+}
+function uploadAll(files, seat, label){
+  var ids = [], i = 0;
+  return files.reduce(function(pr, f){
+    return pr.then(function(){
+      i++; if (label) label(i, files.length);
+      return prepareFile(f).then(function(d){ d.seat = seat; return api('upload', d); }).then(function(r){ ids.push(r.id); });
+    });
+  }, Promise.resolve()).then(function(){ return ids; });
+}
+function pickFiles(accept, cb){
+  var inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; if (accept) inp.accept = accept;
+  inp.style.display = 'none'; document.body.appendChild(inp);
+  inp.onchange = function(){ var fs = [].slice.call(inp.files || []); inp.remove(); if (fs.length) cb(fs); };
+  inp.click();
+}
+function pendThumbs(list, rmAct){
+  return list.map(function(f, i){
+    var u = f._url || (isImg(f.type) ? (f._url = URL.createObjectURL(f)) : '');
+    return '<div class="pd">' + (u ? '<img src="' + u + '">' : '<span class="pf">' + FILE_ICON(f.type, f.name) + '<small>' + esc(f.name) + '</small></span>') +
+      '<button data-' + rmAct + '="' + i + '">✕</button></div>';
+  }).join('');
+}
+
+/* ===================== App 版（可安裝到桌面） ===================== */
+var IS_WEB = /^https?:$/.test(location.protocol) && !IN_GAS;
+var IS_STANDALONE = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+var IS_IOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+var CLASS_Q = '';
+(function readClassParam(){
+  if (IN_GAS) return;
+  var q = new URLSearchParams(location.search), sId = q.get('s'), u = q.get('u');
+  if (sId && /^[\w-]{20,}$/.test(sId)) { lsSet(URL_KEY, 'https://script.google.com/macros/s/' + sId + '/exec'); CLASS_Q = 's=' + sId; }
+  else if (u && /^https:\/\/script\.google\.com\/.+\/exec$/.test(u)) { lsSet(URL_KEY, u); CLASS_Q = 'u=' + encodeURIComponent(u); }
+  else { var saved = lsGet(URL_KEY) || ''; var m = saved.match(/\/macros\/s\/([\w-]+)\/exec$/); if (m) CLASS_Q = 's=' + m[1]; else if (saved) CLASS_Q = 'u=' + encodeURIComponent(saved); }
+})();
+function setManifest(name){
+  if (!IS_WEB) return;
+  try {
+    var base = location.origin + location.pathname.replace(/[^\/]*$/, '');
+    var mf = { name: name ? name + '・親師通' : '興嘉親師通', short_name: '親師通', description: '興嘉國小 老師與家長的專屬聯絡平台',
+      start_url: base + (CLASS_Q ? '?' + CLASS_Q : ''), scope: base, display: 'standalone', background_color: '#f5f2ec', theme_color: '#24585e', lang: 'zh-Hant',
+      icons: [{ src: base + 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' }, { src: base + 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }] };
+    var el = document.getElementById('mf'), old = el.href;
+    el.href = URL.createObjectURL(new Blob([JSON.stringify(mf)], { type: 'application/manifest+json' }));
+    if (/^blob:/.test(old)) URL.revokeObjectURL(old);
+  } catch(e){}
+}
+var installEvt = null;
+window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); installEvt = e; var b = $('#instChip'); if (b) b.style.display = ''; });
+window.addEventListener('appinstalled', function(){ installEvt = null; toast('已安裝到桌面 ✓'); });
+if (IS_WEB && 'serviceWorker' in navigator) window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+function clientInfo(){
+  var ua = navigator.userAgent, dev = /ipad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ? 'iPad' : /iphone|ipod/i.test(ua) ? 'iPhone' : /android/i.test(ua) ? 'Android' : /windows/i.test(ua) ? 'Windows' : /mac/i.test(ua) ? 'Mac' : /cros/i.test(ua) ? 'Chromebook' : /linux/i.test(ua) ? '電腦' : '其他';
+  return { standalone: !!IS_STANDALONE, dev: dev, notify: !!(window.Notification && Notification.permission === 'granted') };
+}
+function fmtAgo(ts){
+  if (!ts) return '尚未上線';
+  var m = Math.floor((Date.now() - ts) / 60000);
+  if (m < 15) return '剛剛'; if (m < 60) return m + ' 分鐘前';
+  var h = Math.floor(m / 60); if (h < 24) return h + ' 小時前';
+  var d = Math.floor(h / 24); return d < 30 ? d + ' 天前' : Math.floor(d / 30) + ' 個月前';
+}
+var ADOPT = {
+  join: ['已加入', function(s){ return !s.pinInit; }, '家長已用邀請碼登入並設定密碼'],
+  app: ['裝成 App', function(s){ return s.app; }, '曾用桌面圖示（App 模式）開啟'],
+  week: ['7 天內上線', function(s){ return s.lastSeen && Date.now() - s.lastSeen < 7 * 86400000; }, '最近一週有打開親師通'],
+  notify: ['開啟通知', function(s){ return s.notify; }, '允許瀏覽器跳出新訊息通知']
+};
+function adoptCard(stu){
+  var n = stu.length || 1, joined = stu.filter(ADOPT.join[1]).length;
+  return '<div class="card"><div class="row" style="justify-content:space-between"><div class="ttl" style="margin:0">家長加入狀況</div><span class="meta">點數字看名單</span></div>' +
+    '<div class="tr" style="height:10px;background:#eef0f2;border-radius:99px;overflow:hidden;margin:10px 0 4px"><i style="display:block;height:100%;width:' + Math.round(joined / n * 100) + '%;background:var(--ok);border-radius:99px"></i></div>' +
+    '<div class="meta" style="margin-bottom:10px">' + joined + ' / ' + stu.length + ' 位家長已加入（' + Math.round(joined / n * 100) + '%）</div>' +
+    '<div class="adopt">' + Object.keys(ADOPT).map(function(k){
+      var c = stu.filter(ADOPT[k][1]).length;
+      return '<button data-act="adoptList" data-id="' + k + '"><b>' + c + '<small>/' + stu.length + '</small></b><span>' + ADOPT[k][0] + '</span></button>';
+    }).join('') + '</div></div>';
+}
+function canOfferInstall(){ return !IS_STANDALONE && (installEvt || (IS_WEB && IS_IOS) || (IN_GAS && /github\.io|\?s=|\?u=/.test(appUrl()))); }
+function doInstall(){
+  if (installEvt) { installEvt.prompt(); installEvt.userChoice.then(function(){ installEvt = null; }); return; }
+  var html;
+  if (IN_GAS && /\?s=|\?u=/.test(appUrl())) {
+    html = '<h3>安裝成 App</h3><div class="body">請改用 App 版網址開啟，就能把親師通圖示放到手機或電腦桌面：</div><a class="btn block" style="margin-top:12px" target="_top" href="' + esc(appUrl()) + '">開啟 App 版</a>';
+  } else if (IS_IOS) {
+    html = '<h3>加到 iPhone／iPad 主畫面</h3><div class="body">1. 請用 <b>Safari</b> 開啟這個網頁（LINE、Facebook 內建瀏覽器不行）\n2. 點下方的「分享」按鈕（方框加向上箭頭）\n3. 往下滑，點「加入主畫面」\n4. 按右上「加入」\n\n之後點主畫面上的「親師通」圖示，就像 App 一樣全螢幕開啟。</div>';
+  } else {
+    html = '<h3>安裝到桌面</h3><div class="body"><b>Android（Chrome）</b>：右上「⋮」→「安裝應用程式」或「加到主畫面」。\n<b>電腦（Chrome／Edge）</b>：網址列右邊的「安裝」圖示 ⊕，或右上「⋮」→「投放、儲存與分享」→「安裝網頁應用程式」。\n\n安裝後桌面會出現「親師通」圖示，開啟時沒有網址列。</div>';
+  }
+  modal(html + '<div class="acts"><button class="btn line" id="x">關閉</button></div>', function(m, c){ $('#x', m).onclick = c; });
+}
+
+/* ---------- Derived ---------- */
+function D(){ return S.data; }
+function appUrl(){ return (D() && D().cls.appUrl) || (S.info && S.info.appUrl) || (location.protocol.indexOf('http') === 0 ? location.href.split('#')[0].split('?')[0] : ''); }
+function qrSrc(u, size){ return 'https://api.qrserver.com/v1/create-qr-code/?size=' + size + 'x' + size + '&margin=4&data=' + encodeURIComponent(u); }
+function isT(){ return D() && D().me.role === 't'; }
+function ackOf(postId, seat){ return D().acks.filter(function(a){ return a.postId === postId && (seat == null || a.seat === String(seat)); }); }
+function myAck(postId){ return ackOf(postId, D().me.seat)[0]; }
+function stuName(seat){ var s = (D().students || []).filter(function(x){ return x.seat === String(seat); })[0]; return s ? s.name : ('座號 ' + seat); }
+function stuLabel(seat){ var s = (D().students || []).filter(function(x){ return x.seat === String(seat); })[0]; return s ? (s.seat + '號 ' + s.name + (s.parentName ? '（' + s.parentName + '）' : '')) : ('座號 ' + seat); }
+function counts(){
+  var d = D(), c = { news:0, book:0, chat:0, leave:0 };
+  if (!d) return c;
+  if (isT()) {
+    c.chat = d.messages.filter(function(m){ return m.from === 'p' && !m.readT; }).length;
+    c.leave = d.leaves.filter(function(l){ return l.status === 'pending'; }).length;
+  } else {
+    d.posts.forEach(function(p){ if (p.requireAck && !myAck(p.id)) { if (p.type === 'contact') c.book++; else c.news++; } });
+    c.chat = d.messages.filter(function(m){ return m.from === 't' && !m.readP; }).length;
+  }
+  return c;
+}
+function inQuiet(){
+  var c = D().cls; if (!c.quietStart || !c.quietEnd) return false;
+  var n = new Date(), t = pad(n.getHours()) + ':' + pad(n.getMinutes());
+  return c.quietStart > c.quietEnd ? (t >= c.quietStart || t < c.quietEnd) : (t >= c.quietStart && t < c.quietEnd);
+}
+
+/* ===================== Login ===================== */
+function renderLogin(){
+  var last = {}; try { last = JSON.parse(lsGet(LAST_KEY) || '{}'); } catch(e){}
+  var r = S.loginRole, info = S.info || {};
+  if (!S.demo && S.info && !info.ready) { renderNotReady(); return; }
+  var cname = S.demo ? '五年一班（示範）' : (info.className || '');
+  root.innerHTML =
+    '<div class="login">' +
+      '<div class="brand"><div class="logo">' + ICON('logo') + '</div><h1>' + esc(cname || '興嘉親師通') + '</h1><p>' + (cname ? '興嘉親師通' + (info.teacherName ? '・導師 ' + esc(info.teacherName) : '') : '老師與家長的專屬聯絡平台') + '</p></div>' +
+      '<div class="card" style="padding:18px">' +
+        '<div class="seg"><button data-r="p" class="' + (r === 'p' ? 'on' : '') + '">我是家長</button><button data-r="t" class="' + (r === 't' ? 'on' : '') + '">我是老師</button></div>' +
+        (r === 'p'
+          ? '<label class="f">孩子座號</label><input class="in-t" id="lgSeat" inputmode="numeric" placeholder="例如 7" value="' + esc(last.seat || '') + '">' +
+            '<label class="f">家長密碼</label><input class="in-t" id="lgPw" type="password" placeholder="第一次請輸入邀請單上的 6 位數邀請碼">'
+          : '<label class="f">老師密碼</label><input class="in-t" id="lgPw" type="password">' +
+            '<p class="hint">忘記密碼：打開本班試算表 → 選單「📮 親師通」→ 重設。</p>') +
+        '<div class="err" id="lgErr"></div>' +
+        '<button class="btn block" id="lgGo">登入</button>' +
+      '</div>' +
+      (canOfferInstall() || IS_WEB ? '<button class="btn block ghost" id="instChip" style="margin-top:10px;' + (canOfferInstall() ? '' : 'display:none') + '">📲 安裝到手機／電腦桌面</button>' : '') +
+      (IN_GAS || (gasUrl() && !S.demo && IS_WEB) ? '' : '<div class="row" style="justify-content:center;gap:18px;margin-top:6px">' +
+        '<button class="link" id="lgDemo">' + (S.demo ? '離開示範模式' : '試用示範模式') + '</button>' +
+        '<button class="link" id="lgCfg">連線設定</button></div>') +
+      (S.demo ? '<p class="hint" style="text-align:center">示範模式：老師密碼 <b>1234</b>；家長座號 1–6，密碼 <b>1111</b>。</p>' : '') +
+    '</div>';
+  root.querySelectorAll('[data-r]').forEach(function(b){ b.onclick = function(){ S.loginRole = b.dataset.r; renderLogin(); }; });
+  if ($('#lgCfg')) $('#lgCfg').onclick = openConfig;
+  if ($('#instChip')) $('#instChip').onclick = doInstall;
+  if ($('#lgDemo')) $('#lgDemo').onclick = function(){
+    S.demo = !S.demo; toast(S.demo ? '已切換為示範模式（資料只存在此瀏覽器）' : '已切換為正式連線');
+    if (S.demo) renderLogin(); else loadInfo();
+  };
+  var go = function(){
+    var pw = $('#lgPw').value, err = $('#lgErr'), seat = r === 'p' ? $('#lgSeat').value.trim() : '';
+    err.textContent = '';
+    if (!pw || (r === 'p' && !seat)) { err.textContent = '請完整填寫'; return; }
+    var p = r === 'p' ? api('parentLogin', { seat: seat, pin: pw }) : api('teacherLogin', { password: pw });
+    busy($('#lgGo'), true);
+    p.then(function(res){
+      if (r === 'p') lsSet(LAST_KEY, JSON.stringify({ seat: seat }));
+      startSession(res.token);
+      if (res.mustChange) setTimeout(function(){ openChangePin(true); }, 400);
+    }).catch(function(e){ busy($('#lgGo'), false); err.textContent = e.message; });
+  };
+  $('#lgGo').onclick = go;
+  $('#lgPw').onkeydown = function(e){ if (e.key === 'Enter') go(); };
+}
+function renderNoClass(){
+  root.innerHTML = '<div class="login"><div class="brand"><div class="logo">' + ICON('logo') + '</div><h1>興嘉親師通</h1><p>老師與家長的專屬聯絡平台</p></div>' +
+    '<div class="card"><div class="ttl">請用老師提供的連結開啟</div><div class="body">掃描邀請單上的 QR Code，或點老師傳給您的網址，就會進入您孩子的班級。</div></div>' +
+    '<button class="btn block line" id="dm">先看看示範</button></div>';
+  $('#dm').onclick = function(){ S.demo = true; renderLogin(); };
+}
+function renderNotReady(){
+  root.innerHTML = '<div class="login"><div class="brand"><div class="logo">' + ICON('logo') + '</div><h1>興嘉親師通</h1><p>這個班級還沒完成設定</p></div>' +
+    '<div class="card"><div class="ttl">老師請完成以下設定</div><div class="body">1. 打開本班的親師通試算表\n2. 上方選單「📮 親師通」→「① 班級設定」\n3. 設定完成後重新整理此頁</div></div>' +
+    '<button class="btn block" onclick="loadInfo()">重新整理</button></div>';
+}
+function loadInfo(){
+  root.innerHTML = '<div class="empty" style="padding-top:40vh">載入中…</div>';
+  api('info').then(function(i){ S.info = i; setManifest(i.className); renderLogin(); })
+    .catch(function(e){ S.info = null; renderLogin(); toast(e.message); });
+}
+function openConfig(){
+  modal('<h3>連線設定</h3><p class="hint">貼上 Google Apps Script 部署後的「網頁應用程式網址」。通常由學校或老師設定一次即可，家長不需更動。</p>' +
+    '<label class="f">伺服器網址</label><input class="in-t" id="cfgUrl" placeholder="https://script.google.com/macros/s/…/exec" value="' + esc(gasUrl()) + '">' +
+    '<div class="acts"><button class="btn line" id="cfgTest">測試連線</button><button class="btn" id="cfgSave">儲存</button></div>',
+    function(m, close){
+      $('#cfgSave', m).onclick = function(){ lsSet(URL_KEY, $('#cfgUrl', m).value.trim()); S.demo = false; close(); toast('已儲存'); loadInfo(); };
+      $('#cfgTest', m).onclick = function(){
+        var u = $('#cfgUrl', m).value.trim(), b = this; busy(b, true);
+        fetch(u + (u.indexOf('?') < 0 ? '?' : '&') + 'ping=1').then(function(r){ return r.json(); }).then(function(j){ busy(b, false); toast(j.ok ? '連線成功 ✓' : '回應異常'); })
+          .catch(function(){ busy(b, false); toast('無法連線，請檢查網址與部署權限'); });
+      };
+    });
+}
+/* ===================== Shell ===================== */
+var TABS_T = [['news','公告回條','news'],['book','聯絡簿','book'],['chat','訊息','chat'],['leave','請假','leave'],['admin','班級管理','gear']];
+var TABS_P = [['news','公告回條','news'],['book','聯絡簿','book'],['chat','問老師','chat'],['leave','請假','leave'],['me','我的','user']];
+function renderShell(){
+  var d = D();
+  if (!d) { root.innerHTML = '<div class="empty" style="padding-top:40vh">載入中…</div>'; return; }
+  var c = counts(), tabs = isT() ? TABS_T : TABS_P;
+  var keepScroll = window.scrollY, ta = $('#cmp'), hadFocus = ta && document.activeElement === ta;
+  var sub = isT() ? (d.cls.teacherName + '・老師') : (d.me.name + ' 的家長' + (d.me.parentName ? '（' + d.me.parentName + '）' : ''));
+  var html = (S.demo ? '<div class="demo-bar">示範模式・資料僅存在此瀏覽器</div>' : '') +
+    '<div class="app"><header class="hd">' +
+      (S.thread && S.tab === 'chat' && isT() ? '<button class="ib" id="back">' + ICON('back') + '</button>' : '') +
+      '<h1>' + esc(S.thread && S.tab === 'chat' && isT() ? stuLabel(S.thread) : d.cls.className) + '<small>' + esc(S.thread && S.tab === 'chat' && isT() ? '一對一訊息' : sub) + '</small></h1>' +
+      '<span class="sync-dot" id="dot"></span><button class="ib" id="hp" title="使用說明">' + ICON('help') + '</button><button class="ib" id="rf" title="重新整理">' + ICON('refresh') + '</button>' +
+    '</header><main id="main">' + renderTab() + '</main></div>' +
+    '<nav class="nav"><div class="in">' + tabs.map(function(t){
+      return '<button data-tab="' + t[0] + '" class="' + (S.tab === t[0] ? 'on' : '') + '">' + ICON(t[2]) + t[1] + (c[t[0]] ? '<span class="badge">' + (c[t[0]] > 99 ? '99+' : c[t[0]]) + '</span>' : '') + '</button>';
+    }).join('') + '</div></nav>';
+  root.innerHTML = html;
+  var total = c.news + c.book + c.chat + c.leave;
+  document.title = (total ? '(' + total + ') ' : '') + '興嘉親師通';
+  root.querySelectorAll('[data-tab]').forEach(function(b){ b.onclick = function(){ S.tab = b.dataset.tab; S.thread = null; renderShell(); window.scrollTo(0, 0); }; });
+  $('#rf').onclick = function(){ sync(true); };
+  $('#hp').onclick = openHelp;
+  if ($('#back')) $('#back').onclick = function(){ S.thread = null; renderShell(); };
+  bindTab();
+  if (S.tab === 'chat' && (S.thread || !isT())) {
+    afterChatRender(hadFocus);
+  } else window.scrollTo(0, keepScroll);
+}
+function renderTab(){
+  switch (S.tab) {
+    case 'news': return viewNews();
+    case 'book': return viewBook();
+    case 'chat': return isT() && !S.thread ? viewChatList() : viewThread();
+    case 'leave': return viewLeave();
+    case 'admin': return viewAdmin();
+    case 'me': return viewMe();
+  }
+  return '';
+}
+function bindTab(){
+  var m = $('#main');
+  m.querySelectorAll('[data-act]').forEach(function(el){
+    el.onclick = function(ev){ ev.stopPropagation(); var f = ACT[el.dataset.act]; if (f) f(el.dataset.id, el); };
+  });
+  if ($('#cmp')) bindCompose();
+  hydrate(m);
+}
+function fab(act){ return '<button class="fab" data-act="' + act + '">' + ICON('plus') + '</button>'; }
+function emptyBox(icon, text){ return '<div class="empty"><div class="big">' + icon + '</div>' + text + '</div>'; }
+
+/* ===================== 公告 / 回條 ===================== */
+function viewNews(){
+  var d = D(), list = d.posts.filter(function(p){ return p.type !== 'contact'; });
+  var html = '';
+  if (!list.length) html = emptyBox('📢', isT() ? '還沒有公告，點右下角 ＋ 發布第一則' : '目前沒有公告');
+  list.forEach(function(p){
+    var n = d.students ? d.students.length : 0, acks = ackOf(p.id), mine = !isT() && myAck(p.id);
+    var need = !isT() && p.requireAck && !mine;
+    html += '<div class="card' + (need ? ' unread' : '') + '">' +
+      '<div class="meta">' + (p.type === 'poll' ? '<span class="tag acc">回條</span>' : '<span class="tag pri">公告</span>') +
+        (need ? '<span class="tag bad">待回覆</span>' : '') + '<span>' + fmtTime(p.created) + '</span></div>' +
+      '<div class="ttl">' + esc(p.title) + '</div>' + (p.body ? '<div class="body">' + linkify(p.body) + '</div>' + linkCards(p.body) : '') + attHtml(p.att);
+    if (p.type === 'poll') {
+      if (isT()) html += pollBars(p, acks);
+      else if (mine) html += '<div class="reply">你的回覆：<b>' + esc(mine.choice) + '</b>' + (mine.reply ? '<br>' + esc(mine.reply) : '') + '</div>';
+    }
+    html += '<div class="foot">';
+    if (isT()) {
+      html += (p.requireAck ? '<button class="link" data-act="ackList" data-id="' + p.id + '">' + (p.type === 'poll' ? '已回覆' : '已讀') + ' ' + acks.length + ' / ' + n + ' ›</button>' : '<span class="meta">不需回條</span>') +
+        '<button class="btn sm line" data-act="delPost" data-id="' + p.id + '">刪除</button>';
+    } else {
+      if (p.type === 'poll') html += '<span class="meta">' + (mine ? '已於 ' + fmtTime(mine.ts) + ' 回覆' : '請勾選後送出') + '</span><button class="btn sm ' + (mine ? 'line' : 'acc') + '" data-act="pollReply" data-id="' + p.id + '">' + (mine ? '修改回覆' : '填寫回條') + '</button>';
+      else if (p.requireAck) html += mine ? '<span class="tag ok">✓ 已讀 ' + fmtTime(mine.ts) + '</span>' : '<span class="meta">請按已讀讓老師知道</span><button class="btn sm acc" data-act="ackRead" data-id="' + p.id + '">我已閱讀</button>';
+    }
+    html += '</div></div>';
+  });
+  return '<div class="sec-t"><h2>公告與回條</h2></div>' + html + (isT() ? fab('newPost') : '');
+}
+function pollBars(p, acks){
+  var n = acks.length || 1;
+  return '<div style="margin-top:10px">' + p.options.map(function(o){
+    var k = acks.filter(function(a){ return a.choice === o; }).length;
+    return '<div class="bar"><div class="lb"><span>' + esc(o) + '</span><b>' + k + '</b></div><div class="tr"><i style="width:' + Math.round(k / n * 100) + '%"></i></div></div>';
+  }).join('') + '</div>';
+}
+
+/* ===================== 聯絡簿 ===================== */
+function viewBook(){
+  var d = D(), list = d.posts.filter(function(p){ return p.type === 'contact'; }).sort(function(a, b){ return b.date < a.date ? -1 : b.date > a.date ? 1 : b.created - a.created; });
+  var html = '';
+  if (!list.length) html = emptyBox('📒', isT() ? '點右下角 ＋ 寫今天的聯絡簿' : '老師還沒有發聯絡簿');
+  list.forEach(function(p){
+    var acks = ackOf(p.id), mine = !isT() && myAck(p.id), n = d.students ? d.students.length : 0;
+    var isToday = p.date === todayStr();
+    html += '<div class="card' + (!isT() && !mine ? ' unread' : '') + '">' +
+      '<div class="meta"><span class="tag ' + (isToday ? 'acc' : 'gray') + '">' + fmtDate(p.date) + (isToday ? ' 今天' : '') + '</span>' + (!isT() && !mine ? '<span class="tag bad">待簽名</span>' : '') + '</div>' +
+      '<div class="body" style="margin-top:8px">' + linkify(p.body) + '</div>' + linkCards(p.body) + attHtml(p.att);
+    if (!isT() && mine && mine.reply) html += '<div class="reply">家長留言：' + esc(mine.reply) + '</div>';
+    if (isT()) {
+      var replies = acks.filter(function(a){ return a.reply; });
+      if (replies.length) html += replies.map(function(a){ return '<div class="reply"><b>' + esc(stuName(a.seat)) + '</b>：' + esc(a.reply) + '</div>'; }).join('');
+      html += '<div class="foot"><button class="link" data-act="ackList" data-id="' + p.id + '">已簽 ' + acks.length + ' / ' + n + ' ›</button><button class="btn sm line" data-act="delPost" data-id="' + p.id + '">刪除</button></div>';
+    } else {
+      html += '<div class="foot">' + (mine ? '<span class="tag ok">✓ 已簽名 ' + fmtTime(mine.ts) + '</span><button class="btn sm line" data-act="sign" data-id="' + p.id + '">修改留言</button>'
+        : '<span class="meta">確認孩子的作業與事項後簽名</span><button class="btn sm acc" data-act="sign" data-id="' + p.id + '">家長簽名</button>') + '</div>';
+    }
+    html += '</div>';
+  });
+  return '<div class="sec-t"><h2>電子聯絡簿</h2></div>' + html + (isT() ? fab('newContact') : '');
+}
+
+/* ===================== 訊息 ===================== */
+function viewChatList(){
+  var d = D(), stu = d.students || [];
+  if (!stu.length) return emptyBox('👨‍👩‍👧', '請先到「班級管理」建立學生名單');
+  var rows = stu.map(function(s){
+    var ms = d.messages.filter(function(m){ return m.seat === s.seat; }).sort(function(a, b){ return a.ts - b.ts; });
+    var last = ms[ms.length - 1], un = ms.filter(function(m){ return m.from === 'p' && !m.readT; }).length;
+    return { s: s, last: last, un: un };
+  }).sort(function(a, b){ return (b.last ? b.last.ts : 0) - (a.last ? a.last.ts : 0) || Number(a.s.seat) - Number(b.s.seat); });
+  return '<div class="sec-t"><h2>家長訊息</h2><button class="link" data-act="broadcastHint">群發？</button></div><div class="list">' + rows.map(function(r){
+    return '<div class="li" data-act="openThread" data-id="' + r.s.seat + '"><div class="av">' + esc(r.s.seat) + '</div><div class="mid"><div class="nm">' + esc(r.s.name) +
+      (r.s.parentName ? ' <span class="meta" style="display:inline">' + esc(r.s.parentName) + '</span>' : '') + '</div><div class="pv">' +
+      (r.last ? (r.last.from === 't' ? '你：' : '') + esc(msgPreview(r.last)) : '尚無訊息') + '</div></div><div class="rt">' + (r.last ? fmtTime(r.last.ts) : '') + (r.un ? '<span class="cnt">' + r.un + '</span>' : '') + '</div></div>';
+  }).join('') + '</div>';
+}
+function viewThread(){
+  var d = D(), seat = isT() ? S.thread : d.me.seat, me = d.me.role;
+  var ms = d.messages.filter(function(m){ return m.seat === String(seat); }).sort(function(a, b){ return a.ts - b.ts; });
+  var html = '';
+  if (!isT()) html += '<div class="quiet" style="background:var(--priSoft);color:var(--pri)">這裡是你和' + esc(d.cls.teacherName) + '的一對一對話，其他家長看不到。' +
+    (d.cls.quietStart ? '<br>老師回覆時段：' + esc(d.cls.quietEnd) + '–' + esc(d.cls.quietStart) + '，非緊急事項請於此時段聯繫。' : '') + '</div>';
+  if (!isT() && inQuiet()) html += '<div class="quiet">🌙 現在是老師的休息時段，訊息仍會送達，老師會在上班時間回覆。緊急事件請直接致電學校。</div>';
+  html += '<div class="chat">';
+  if (!ms.length) html += emptyBox('💬', isT() ? '開始和這位家長聯絡吧' : '有任何問題都可以在這裡問老師');
+  var lastDay = '';
+  ms.forEach(function(m, i){
+    var day = todayStr(new Date(m.ts));
+    if (day !== lastDay) { html += '<div class="day">' + fmtDate(day) + '</div>'; lastDay = day; }
+    var mine = m.from === me;
+    html += '<div class="mg ' + (mine ? 'me' : 'them') + '">';
+    if (m.kind === 'sticker') html += stickerHtml(m.body);
+    else {
+      html += attHtml(m.att);
+      if (m.body) html += '<div class="bub ' + (mine ? 'me' : 'them') + '">' + linkify(m.body) + '</div>' + linkCards(m.body);
+    }
+    html += '</div>';
+    var next = ms[i + 1];
+    if (!next || next.from !== m.from || next.ts - m.ts > 300000) {
+      var read = mine && (me === 't' ? m.readP : m.readT);
+      html += '<div class="bub-meta ' + (mine ? 'me' : '') + '">' + fmtTime(m.ts) + (mine ? (read ? '・已讀' : '・送達') : '') + '</div>';
+    }
+  });
+  var pend = ATT.pend[String(S.thread || 'p')] || [];
+  html += '</div><div style="height:' + (pend.length ? 150 : 76) + 'px"></div>';
+  html += '<div class="compose"><div class="pend" id="pend">' + pendThumbs(pend, 'rmp') + '</div><div class="in">' +
+    '<button class="cbtn" id="plusBtn" title="照片／檔案／連結">' + ICON('plus') + '</button>' +
+    '<textarea id="cmp" rows="1" placeholder="輸入訊息…"></textarea>' +
+    '<button class="cbtn" id="stkBtn" title="貼圖">😊</button>' +
+    '<button class="send" id="sendBtn">' + ICON('send') + '</button></div></div>';
+  return html;
+}
+['wheel','touchmove'].forEach(function(ev){ window.addEventListener(ev, function(){ S.stick = false; }, { passive: true }); });
+function afterChatRender(focus){
+  S.stick = true;
+  window.scrollTo(0, document.body.scrollHeight);
+  if (focus) { var ta = $('#cmp'); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  var d = D(), me = d.me.role, seat = isT() ? S.thread : d.me.seat;
+  var un = d.messages.some(function(m){ return m.seat === String(seat) && m.from !== me && !(me === 't' ? m.readT : m.readP); });
+  if (un) api('markRead', { seat: seat }).then(function(){
+    d.messages.forEach(function(m){ if (m.seat === String(seat) && m.from !== me) { if (me === 't') m.readT = true; else m.readP = true; } });
+    var c = counts(), b = root.querySelector('[data-tab="chat"] .badge');
+    if (b) { if (c.chat) b.textContent = c.chat; else b.remove(); }
+  }).catch(function(){});
+}
+function threadKey(){ return String(S.thread || 'p'); }
+function addPend(files){
+  var k = threadKey(), cur = ATT.pend[k] || [];
+  files.forEach(function(f){ if (cur.length < 9) cur.push(f); });
+  if (files.length + (ATT.pend[k] || []).length > 9) toast('一次最多 9 個附件');
+  ATT.pend[k] = cur; renderShell();
+}
+function bindCompose(){
+  var ta = $('#cmp'), key = threadKey();
+  ta.value = S.draft[key] || '';
+  var fit = function(){ ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'; };
+  ta.oninput = function(){ S.draft[key] = ta.value; fit(); }; fit();
+  ta.onpaste = function(e){
+    var items = [].slice.call((e.clipboardData && e.clipboardData.items) || []).filter(function(it){ return it.kind === 'file'; });
+    if (items.length) { e.preventDefault(); addPend(items.map(function(it){ return it.getAsFile(); }).filter(Boolean)); }
+  };
+  $('#sendBtn').onclick = sendMsg;
+  $('#stkBtn').onclick = openStickers;
+  $('#plusBtn').onclick = function(){
+    modal('<h3>傳送</h3><div class="menu-grid"><button id="mI"><span>🖼️</span>照片</button><button id="mF"><span>📎</span>檔案</button><button id="mL"><span>🔗</span>連結</button></div>' +
+      '<p class="hint">照片會自動壓縮；檔案單一上限 10MB。</p>', function(m, close){
+      $('#mI', m).onclick = function(){ close(); pickFiles('image/*', addPend); };
+      $('#mF', m).onclick = function(){ close(); pickFiles('', addPend); };
+      $('#mL', m).onclick = function(){ close(); openLinkBox(); };
+    });
+  };
+  $('#pend').querySelectorAll('[data-rmp]').forEach(function(b){ b.onclick = function(){ ATT.pend[key].splice(Number(b.dataset.rmp), 1); renderShell(); }; });
+}
+function openLinkBox(){
+  modal('<h3>分享連結</h3><label class="f">網址</label><input class="in-t" id="lu" placeholder="https://" inputmode="url">' +
+    '<label class="f">說明（選填）</label><input class="in-t" id="lt" placeholder="例如：校外教學照片雲端相簿">' +
+    '<div class="acts"><button class="btn line" id="x">取消</button><button class="btn" id="ok">送出</button></div>', function(m, close){
+      $('#x', m).onclick = close;
+      $('#ok', m).onclick = function(){
+        var u = $('#lu', m).value.trim(); if (!/^https?:\/\//.test(u)) u = 'https://' + u;
+        if (!/^https?:\/\/[^\s.]+\.[^\s]+$/.test(u)) { toast('網址格式不正確'); return; }
+        var t = $('#lt', m).value.trim();
+        run(this, api('sendMsg', { seat: S.thread, body: (t ? t + '\n' : '') + u })).then(function(){ close(); sync(true); });
+      };
+    });
+}
+function openStickers(){
+  modal('<h3>貼圖</h3><div class="stk-grid">' + STICKERS.map(function(s){ return '<button data-s="' + s[0] + '">' + stickerHtml(s[0]) + '</button>'; }).join('') + '</div>', function(m, close){
+    m.querySelectorAll('[data-s]').forEach(function(b){ b.onclick = function(){
+      close();
+      api('sendMsg', { seat: S.thread, kind: 'sticker', body: b.dataset.s }).then(function(){ sync(true); })
+        .catch(function(e){ toast(e.message); if (authFail(e)) logout(); });
+    }; });
+  });
+}
+function sendMsg(){
+  var ta = $('#cmp'), body = ta.value.trim(), key = threadKey(), files = (ATT.pend[key] || []).slice();
+  if (!body && !files.length) return;
+  var btn = $('#sendBtn'); btn.disabled = true;
+  var seat = isT() ? S.thread : '';
+  uploadAll(files, seat, function(i, n){ toast('上傳中 ' + i + ' / ' + n + '…'); })
+    .then(function(ids){ return api('sendMsg', { seat: S.thread, body: body, att: ids }); })
+    .then(function(){
+      S.draft[key] = ''; ATT.pend[key] = []; files.forEach(function(f){ if (f._url) URL.revokeObjectURL(f._url); });
+      btn.disabled = false; return sync(true).then(function(){ var t = $('#cmp'); if (t && body) t.focus(); });
+    })
+    .catch(function(e){ var b = $('#sendBtn'); if (b) b.disabled = false; toast(e.message); if (authFail(e)) logout(); });
+}
+
+/* ===================== 請假 ===================== */
+var LV = { pending: ['待老師確認','acc'], approved: ['老師已收到','ok'], rejected: ['請聯繫老師','bad'] };
+function viewLeave(){
+  var d = D(), list = d.leaves.slice();
+  if (isT()) list.sort(function(a, b){ return (a.status === 'pending' ? 0 : 1) - (b.status === 'pending' ? 0 : 1) || b.ts - a.ts; });
+  var html = '';
+  if (!list.length) html = emptyBox('🗓️', isT() ? '目前沒有請假申請' : '孩子需要請假時，點右下角 ＋ 填寫假單');
+  list.forEach(function(l){
+    var st = LV[l.status] || ['', 'gray'];
+    html += '<div class="card' + (isT() && l.status === 'pending' ? ' unread' : '') + '"><div class="meta"><span class="tag ' + st[1] + '">' + st[0] + '</span><span>申請於 ' + fmtTime(l.ts) + '</span></div>' +
+      '<div class="ttl">' + (isT() ? esc(stuLabel(l.seat)) + '・' : '') + esc(l.kind) + '　' + fmtDate(l.date) + '</div>' +
+      (l.reason ? '<div class="body">' + esc(l.reason) + '</div>' : '') +
+      (l.note ? '<div class="reply">老師回覆：' + esc(l.note) + '</div>' : '');
+    if (isT() && l.status === 'pending') html += '<div class="foot"><span></span><div class="row"><button class="btn sm line" data-act="leaveNo" data-id="' + l.id + '">需補充說明</button><button class="btn sm okb" data-act="leaveOk" data-id="' + l.id + '">確認收到</button></div></div>';
+    if (!isT() && l.status === 'pending') html += '<div class="foot"><span></span><button class="btn sm line" data-act="leaveCancel" data-id="' + l.id + '">取消申請</button></div>';
+    html += '</div>';
+  });
+  return '<div class="sec-t"><h2>' + (isT() ? '請假紀錄' : '線上請假') + '</h2></div>' + html + (!isT() ? fab('newLeave') : '');
+}
+
+/* ===================== 班級管理（老師） ===================== */
+function viewAdmin(){
+  var d = D(), stu = d.students || [];
+  var posts = d.posts.length, active = stu.filter(function(s){ return !s.pinInit; }).length;
+  var html = '';
+  if (!stu.length || !posts) {
+    var step = function(done, n, t, act, btn){ return '<div class="li"' + (act && !done ? ' data-act="' + act + '"' : '') + '><div class="av" style="' + (done ? 'background:var(--okSoft);color:var(--ok)' : '') + '">' + (done ? '✓' : n) + '</div><div class="mid"><div class="nm" style="' + (done ? 'color:var(--ink3);text-decoration:line-through' : '') + '">' + t + '</div></div>' + (act && !done ? '<span class="link">' + btn + ' ›</span>' : '') + '</div>'; };
+    html += '<div class="sec-t"><h2>🚀 開始使用：三個步驟</h2></div><div class="list">' +
+      step(stu.length > 0, 1, '貼上學生名單（自動產生家長邀請碼）', 'roster', '貼名單') +
+      step(stu.length > 0 && active > 0, 2, '列印邀請單，或把網址傳給家長', stu.length ? 'printSlips' : '', '列印') +
+      step(posts > 0, 3, '發第一則公告或聯絡簿', 'newPost', '發布') + '</div>';
+  }
+  html += '<div class="card"><div class="row" style="justify-content:space-between"><div><div class="ttl" style="margin:0">' + esc(d.cls.className) + '</div><div class="meta">' + stu.length + ' 位學生・' + active + ' 位家長已加入</div></div>' +
+    '<button class="btn sm ghost" data-act="settings">班級設定</button></div>' +
+    '<div class="meta" style="margin-top:6px">🌙 休息時段 ' + esc(d.cls.quietStart || '未設定') + ' – ' + esc(d.cls.quietEnd || '') + '（家長端會看到提醒）</div></div>';
+  var u = appUrl();
+  if (stu.length) html += adoptCard(stu);
+  if (u) html += '<div class="card"><div class="row" style="flex-wrap:nowrap;gap:12px"><img src="' + qrSrc(u, 160) + '" width="84" height="84" alt="QR" style="border-radius:8px;flex:none;background:#f5f2ec"><div style="min-width:0;flex:1"><div class="nm" style="font-weight:700">家長登入網址</div><div class="meta" style="word-break:break-all">' + esc(u) + '</div><div class="row" style="margin-top:6px"><button class="btn sm ghost" data-act="copyUrl">複製網址</button></div></div></div></div>';
+  html += '<div class="sec-t"><h2>學生與家長帳號</h2><div class="row"><button class="link" data-act="printSlips">列印邀請單</button><button class="btn sm" data-act="roster">匯入／編輯名單</button></div></div>';
+  if (!stu.length) html += emptyBox('📝', '貼上學生名單後，系統會自動產生每位家長的 6 位數邀請碼');
+  else html += '<div class="card" style="padding:6px 10px"><table class="tb"><tr><th>座號</th><th>學生 / 家長</th><th>帳號狀態</th><th></th></tr>' + stu.map(function(s){
+    return '<tr><td>' + esc(s.seat) + '</td><td>' + esc(s.name) + (s.parentName ? '<div class="meta">' + esc(s.parentName) + '</div>' : '') + '</td><td>' +
+      (s.pinInit ? '<span class="tag gray">未加入</span><div class="meta">邀請碼 <span class="mono">' + esc(s.pinInit) + '</span></div>'
+        : '<span class="tag ok">已加入</span>' + (s.app ? ' <span title="已裝成 App">📲</span>' : '') + (s.notify ? ' <span title="已開通知">🔔</span>' : '') +
+          '<div class="meta">' + (s.device ? esc(s.device) + '・' : '') + fmtAgo(s.lastSeen) + '</div>') + '</td><td style="text-align:right"><button class="link" data-act="stuMenu" data-id="' + esc(s.seat) + '">⋯</button></td></tr>';
+  }).join('') + '</table></div>';
+  html += '<div class="sec-t"><h2>其他</h2></div><div class="list">' +
+    '<div class="li" data-act="exportCsv"><div class="mid"><div class="nm">匯出回條／簽名紀錄（CSV）</div><div class="pv">可用 Excel 開啟存檔</div></div></div>' +
+    '<div class="li" data-act="notifyOn"><div class="mid"><div class="nm">開啟瀏覽器通知</div><div class="pv">網頁開著時有新訊息會跳通知</div></div></div>' +
+    (IS_STANDALONE ? '' : '<div class="li" data-act="installHint"><div class="mid"><div class="nm">📲 安裝到手機／電腦桌面</div><div class="pv">老師的手機、電腦也能有親師通圖示</div></div></div>') +
+    '<div class="li" data-act="changePw"><div class="mid"><div class="nm">變更老師密碼</div></div></div>' +
+    '<div class="li" data-act="logout"><div class="mid"><div class="nm" style="color:var(--bad)">登出</div></div></div></div>';
+  return html;
+}
+
+/* ===================== 我的（家長） ===================== */
+function viewMe(){
+  var d = D();
+  return '<div class="card"><div class="row"><div class="av">' + esc(d.me.seat) + '</div><div><div class="ttl" style="margin:0">' + esc(d.me.name) + ' 的家長</div><div class="meta">' + esc(d.cls.className) + '・導師 ' + esc(d.cls.teacherName) + '</div></div></div></div>' +
+    '<div class="list">' +
+    '<div class="li" data-act="notifyOn"><div class="mid"><div class="nm">開啟通知</div><div class="pv">網頁開著時，老師有新訊息會跳通知</div></div></div>' +
+    (IS_STANDALONE ? '' : '<div class="li" data-act="installHint"><div class="mid"><div class="nm">📲 安裝到手機／電腦桌面</div><div class="pv">桌面出現親師通圖示，像 App 一樣全螢幕開啟</div></div></div>') +
+    '<div class="li" data-act="changePinAct"><div class="mid"><div class="nm">變更家長密碼</div></div></div>' +
+    '<div class="li" data-act="logout"><div class="mid"><div class="nm" style="color:var(--bad)">登出</div></div></div></div>' +
+    '<p class="hint" style="text-align:center">家中多位家長可共用同一組座號與密碼登入。</p>';
+}
+
+/* ===================== 動作 ===================== */
+var ACT = {
+  logout: function(){ confirmBox('確定要登出嗎？', '登出').then(function(ok){ if (ok) logout(); }); },
+  openThread: function(seat){ S.thread = seat; renderShell(); },
+  broadcastHint: function(){ toast('要通知全班請用「公告」，可追蹤已讀名單'); S.tab = 'news'; renderShell(); },
+  delPost: function(id){
+    confirmBox('刪除後家長端也會一併消失，回條紀錄將無法復原。', '刪除', true).then(function(ok){
+      if (ok) run(null, api('deletePost', { id: id }), '已刪除').then(function(){ sync(true); });
+    });
+  },
+  ackRead: function(id, btn){ run(btn, api('ack', { postId: id }), '已回報老師 ✓').then(function(){ sync(true); }); },
+  sign: function(id){
+    var mine = myAck(id);
+    modal('<h3>家長簽名</h3><p class="hint">送出即代表已確認孩子今天的作業與事項。</p><label class="f">想跟老師說的話（選填）</label><textarea class="in-t" id="sgR" maxlength="500" placeholder="例如：數學第 5 題孩子不太會">' + esc(mine ? mine.reply : '') + '</textarea>' +
+      '<div class="acts"><button class="btn line" id="x">取消</button><button class="btn acc" id="ok">簽名送出</button></div>', function(m, close){
+        $('#x', m).onclick = close;
+        $('#ok', m).onclick = function(){ run(this, api('ack', { postId: id, reply: $('#sgR', m).value }), '簽名完成 ✓').then(function(){ close(); sync(true); }); };
+      });
+  },
+  pollReply: function(id){
+    var p = D().posts.filter(function(x){ return x.id === id; })[0], mine = myAck(id), sel = mine ? mine.choice : '';
+    modal('<h3>' + esc(p.title) + '</h3>' + (p.body ? '<div class="body hint">' + esc(p.body) + '</div>' : '') + '<div id="opts">' +
+      p.options.map(function(o, i){ return '<label class="opt' + (o === sel ? ' on' : '') + '"><input type="radio" name="po" value="' + i + '"' + (o === sel ? ' checked' : '') + '>' + esc(o) + '</label>'; }).join('') +
+      '</div><label class="f">補充說明（選填）</label><input class="in-t" id="poR" maxlength="500" value="' + esc(mine ? mine.reply : '') + '">' +
+      '<div class="acts"><button class="btn line" id="x">取消</button><button class="btn acc" id="ok">送出回條</button></div>', function(m, close){
+        m.querySelectorAll('.opt input').forEach(function(r){ r.onchange = function(){ m.querySelectorAll('.opt').forEach(function(o){ o.classList.toggle('on', o.contains(r) && r.checked); }); }; });
+        $('#x', m).onclick = close;
+        $('#ok', m).onclick = function(){
+          var c = m.querySelector('.opt input:checked'); if (!c) { toast('請選擇一個選項'); return; }
+          run(this, api('ack', { postId: id, choice: p.options[Number(c.value)], reply: $('#poR', m).value }), '回條已送出 ✓').then(function(){ close(); sync(true); });
+        };
+      });
+  },
+  ackList: function(id){
+    var d = D(), p = d.posts.filter(function(x){ return x.id === id; })[0], acks = ackOf(id), done = {};
+    acks.forEach(function(a){ done[a.seat] = a; });
+    var yes = d.students.filter(function(s){ return done[s.seat]; }), no = d.students.filter(function(s){ return !done[s.seat]; });
+    var word = p.type === 'contact' ? '簽名' : p.type === 'poll' ? '回覆' : '已讀';
+    var html = '<h3>' + esc(p.type === 'contact' ? fmtDate(p.date) + ' 聯絡簿' : p.title) + '</h3>';
+    html += '<label class="f">尚未' + word + '（' + no.length + '）</label><div class="chips">' + (no.length ? no.map(function(s){ return '<span class="chip no">' + esc(s.seat + ' ' + s.name) + '</span>'; }).join('') : '<span class="meta">全部完成 🎉</span>') + '</div>';
+    html += '<label class="f">已' + word + '（' + yes.length + '）</label>';
+    if (p.type === 'poll') {
+      html += p.options.map(function(o){ var g = yes.filter(function(s){ return done[s.seat].choice === o; }); return '<div class="meta" style="margin-top:8px"><b>' + esc(o) + '</b>（' + g.length + '）</div><div class="chips">' + g.map(function(s){ return '<span class="chip">' + esc(s.seat + ' ' + s.name) + '</span>'; }).join('') + '</div>'; }).join('');
+      var rs = yes.filter(function(s){ return done[s.seat].reply; });
+      if (rs.length) html += '<label class="f">補充說明</label>' + rs.map(function(s){ return '<div class="reply"><b>' + esc(s.name) + '</b>：' + esc(done[s.seat].reply) + '</div>'; }).join('');
+    } else html += '<div class="chips">' + yes.map(function(s){ return '<span class="chip">' + esc(s.seat + ' ' + s.name) + ' <span class="meta" style="display:inline">' + fmtTime(done[s.seat].ts) + '</span></span>'; }).join('') + '</div>';
+    html += '<div class="acts">' + (no.length ? '<button class="btn ghost" id="remind">提醒未完成家長</button>' : '') + '<button class="btn line" id="x">關閉</button></div>';
+    modal(html, function(m, close){
+      $('#x', m).onclick = close;
+      if ($('#remind', m)) $('#remind', m).onclick = function(){
+        var b = this, title = p.type === 'contact' ? fmtDate(p.date) + '的聯絡簿' : '「' + p.title + '」';
+        busy(b, true);
+        no.reduce(function(pr, s){ return pr.then(function(){ return api('sendMsg', { seat: s.seat, body: '提醒您：' + title + '尚未' + word + '，麻煩撥空查看，謝謝！' }); }); }, Promise.resolve())
+          .then(function(){ close(); toast('已私訊提醒 ' + no.length + ' 位家長'); sync(true); })
+          .catch(function(e){ busy(b, false); toast(e.message); });
+      };
+    });
+  },
+  newPost: function(){
+    var kind = 'announce', opts = ['參加', '不參加'];
+    var draw = function(m){
+      $('#pkSeg', m).querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.k === kind); });
+      $('#pollBox', m).style.display = kind === 'poll' ? '' : 'none';
+      $('#ackBox', m).style.display = kind === 'announce' ? '' : 'none';
+      $('#optList', m).innerHTML = opts.map(function(o, i){ return '<div class="row" style="margin-top:6px;flex-wrap:nowrap"><input class="in-t" data-o="' + i + '" value="' + esc(o) + '" placeholder="選項 ' + (i + 1) + '">' + (opts.length > 2 ? '<button class="btn sm line" data-rm="' + i + '">✕</button>' : '') + '</div>'; }).join('');
+      $('#optList', m).querySelectorAll('[data-o]').forEach(function(inp){ inp.oninput = function(){ opts[Number(inp.dataset.o)] = inp.value; }; });
+      $('#optList', m).querySelectorAll('[data-rm]').forEach(function(b){ b.onclick = function(){ opts.splice(Number(b.dataset.rm), 1); draw(m); }; });
+    };
+    modal('<h3>發布到全班</h3><div class="seg" id="pkSeg"><button data-k="announce">一般公告</button><button data-k="poll">回條／調查</button></div>' +
+      '<label class="f">標題</label><input class="in-t" id="npT" maxlength="60" placeholder="例如 校外教學通知">' +
+      '<label class="f">內容</label><textarea class="in-t" id="npB" maxlength="3000"></textarea>' +
+      '<div id="pollBox"><label class="f">選項</label><div id="optList"></div><button class="link" id="addOpt" style="margin-top:8px">＋ 新增選項</button></div>' +
+'<label class="f">附件（選填）</label><div class="patt pend" id="pAtt" style="padding:0;margin:0"></div><div class="row" style="margin-top:6px"><button class="btn sm line" id="pImg">🖼️ 加圖片</button><button class="btn sm line" id="pFile">📎 加檔案</button></div>' +
+      '<label class="row" id="ackBox" style="margin-top:12px;gap:8px"><input type="checkbox" id="npAck" checked style="width:18px;height:18px;accent-color:var(--pri)"> 需要家長按「已讀」</label>' +
+      '<div class="acts"><button class="btn line" id="x">取消</button><button class="btn acc" id="ok">發布</button></div>', function(m, close){
+        var files = bindAttach(m);
+        $('#pkSeg', m).querySelectorAll('button').forEach(function(b){ b.onclick = function(){ kind = b.dataset.k; draw(m); }; });
+        $('#addOpt', m).onclick = function(){ if (opts.length < 8) { opts.push(''); draw(m); } };
+        $('#x', m).onclick = close;
+        $('#ok', m).onclick = function(){
+          run(this, postWithAtt(files(), { type: kind, title: $('#npT', m).value, body: $('#npB', m).value, options: opts, requireAck: $('#npAck', m).checked }), '已發布').then(function(){ close(); S.tab = 'news'; sync(true); });
+        };
+        draw(m);
+      });
+  },
+  newContact: function(){
+    var last = D().posts.filter(function(p){ return p.type === 'contact'; }).sort(function(a, b){ return b.created - a.created; })[0];
+    modal('<h3>今日聯絡簿</h3><label class="f">日期</label><input type="date" class="in-t" id="ncD" value="' + todayStr() + '">' +
+      '<label class="f">作業與事項（一行一項）</label><textarea class="in-t" id="ncB" style="min-height:160px" maxlength="3000" placeholder="1. 數習 P.42&#10;2. 國語圈詞 L9&#10;3. 明天帶美勞用具"></textarea>' +
+      (last ? '<button class="link" id="cpLast">帶入上次內容</button>' : '') +
+      '<label class="f">附件（選填）</label><div class="patt pend" id="pAtt" style="padding:0;margin:0"></div><div class="row" style="margin-top:6px"><button class="btn sm line" id="pImg">🖼️ 加圖片</button><button class="btn sm line" id="pFile">📎 加檔案</button></div>' +
+      '<p class="hint">發布後家長需點「家長簽名」，你可以即時看到誰還沒簽。</p>' +
+      '<div class="acts"><button class="btn line" id="x">取消</button><button class="btn acc" id="ok">發布</button></div>', function(m, close){
+        var files = bindAttach(m);
+        if ($('#cpLast', m)) $('#cpLast', m).onclick = function(){ $('#ncB', m).value = last.body; };
+        $('#x', m).onclick = close;
+        $('#ok', m).onclick = function(){ run(this, postWithAtt(files(), { type: 'contact', date: $('#ncD', m).value, body: $('#ncB', m).value }), '聯絡簿已發布').then(function(){ close(); sync(true); }); };
+      });
+  },
+  newLeave: function(){
+    modal('<h3>線上請假</h3><label class="f">假別</label><div class="seg" id="lvK">' + ['病假','事假','喪假','公假','其他'].map(function(k, i){ return '<button data-k="' + k + '" class="' + (i ? '' : 'on') + '">' + k + '</button>'; }).join('') + '</div>' +
+      '<div class="row" style="flex-wrap:nowrap"><div style="flex:1"><label class="f">開始日期</label><input type="date" class="in-t" id="lvD" value="' + todayStr() + '"></div><div style="flex:1"><label class="f">結束日期</label><input type="date" class="in-t" id="lvE" value="' + todayStr() + '"></div></div>' +
+      '<label class="f">事由</label><textarea class="in-t" id="lvR" maxlength="300" placeholder="例如：發燒，上午看診"></textarea>' +
+      '<p class="hint">當天請假請於 8:00 前送出；學校仍可能依規定電話確認。</p>' +
+      '<div class="acts"><button class="btn line" id="x">取消</button><button class="btn acc" id="ok">送出假單</button></div>', function(m, close){
+        var kind = '病假';
+        $('#lvK', m).querySelectorAll('button').forEach(function(b){ b.onclick = function(){ kind = b.dataset.k; $('#lvK', m).querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); }; });
+        $('#x', m).onclick = close;
+        $('#ok', m).onclick = function(){
+          var d1 = $('#lvD', m).value, d2 = $('#lvE', m).value;
+          if (d2 && d2 < d1) { toast('結束日期不可早於開始日期'); return; }
+          run(this, api('leave', { kind: kind, date: d1, dateEnd: d2, reason: $('#lvR', m).value }), '假單已送出').then(function(){ close(); sync(true); });
+        };
+      });
+  },
+  leaveCancel: function(id){ confirmBox('確定取消這張假單？', '取消假單', true).then(function(ok){ if (ok) run(null, api('cancelLeave', { id: id }), '已取消').then(function(){ sync(true); }); }); },
+  leaveOk: function(id){ leaveDecide(id, 'approved'); },
+  leaveNo: function(id){ leaveDecide(id, 'rejected'); },
+  settings: function(){
+    var c = D().cls;
+    modal('<h3>班級設定</h3><label class="f">班級名稱</label><input class="in-t" id="stN" value="' + esc(c.className) + '">' +
+      '<label class="f">老師稱呼</label><input class="in-t" id="stT" value="' + esc(c.teacherName) + '">' +
+      '<label class="f">休息時段（家長傳訊會看到提醒）</label><div class="row" style="flex-wrap:nowrap"><input type="time" class="in-t" id="stQs" value="' + esc(c.quietStart) + '"><span>至</span><input type="time" class="in-t" id="stQe" value="' + esc(c.quietEnd) + '"></div>' +
+      '<p class="hint">兩格都清空代表不設休息時段。</p>' +
+      '<div class="acts"><button class="btn line" id="x">取消</button><button class="btn" id="ok">儲存</button></div>', function(m, close){
+        $('#x', m).onclick = close;
+        $('#ok', m).onclick = function(){ run(this, api('saveSettings', { className: $('#stN', m).value, teacherName: $('#stT', m).value, quietStart: $('#stQs', m).value, quietEnd: $('#stQe', m).value }), '已儲存').then(function(){ close(); sync(true); }); };
+      });
+  },
+  roster: function(){
+    var cur = (D().students || []).map(function(s){ return [s.seat, s.name, s.parentName].join(','); }).join('\n');
+    modal('<h3>匯入／編輯學生名單</h3><p class="hint">每行一位：<b>座號,姓名,家長稱呼</b>（家長稱呼可省略）。可直接從 Excel 複製三欄貼上。已存在的座號會更新姓名，新座號會自動產生邀請碼。</p>' +
+      '<textarea class="in-t" id="roT" style="min-height:220px;font-family:ui-monospace,monospace" placeholder="1,王小明,王爸爸&#10;2,林小美,林媽媽">' + esc(cur) + '</textarea>' +
+      '<div class="acts"><button class="btn line" id="x">取消</button><button class="btn" id="ok">儲存名單</button></div>', function(m, close){
+        $('#x', m).onclick = close;
+        $('#ok', m).onclick = function(){
+          var list = $('#roT', m).value.split(/\r?\n/).map(function(l){ return l.trim(); }).filter(Boolean).map(function(l){ var a = l.split(/\t|,|，/); return { seat: (a[0] || '').trim(), name: (a[1] || '').trim(), parentName: (a[2] || '').trim() }; });
+          if (!list.length) { toast('名單是空的'); return; }
+          run(this, api('setStudents', { list: list })).then(function(r){ close(); toast('新增 ' + r.created + ' 位、更新 ' + r.updated + ' 位'); sync(true); });
+        };
+      });
+  },
+  stuMenu: function(seat){
+    var s = D().students.filter(function(x){ return x.seat === seat; })[0];
+    modal('<h3>' + esc(s.seat + '號 ' + s.name) + '</h3><div class="list" style="margin-top:12px">' +
+      '<div class="li" id="mMsg"><div class="mid"><div class="nm">傳訊息給家長</div></div></div>' +
+      '<div class="li" id="mReset"><div class="mid"><div class="nm">重設家長密碼</div><div class="pv">家長忘記密碼時使用，會產生新邀請碼</div></div></div>' +
+      '<div class="li" id="mDel"><div class="mid"><div class="nm" style="color:var(--bad)">移除這位學生</div><div class="pv">訊息、簽名、假單紀錄會一併刪除</div></div></div></div>' +
+      '<div class="acts"><button class="btn line" id="x">關閉</button></div>', function(m, close){
+        $('#x', m).onclick = close;
+        $('#mMsg', m).onclick = function(){ close(); S.tab = 'chat'; S.thread = seat; renderShell(); };
+        $('#mReset', m).onclick = function(){ close(); confirmBox('重設後家長原本的密碼會失效，需用新邀請碼重新登入。', '重設').then(function(ok){
+          if (ok) run(null, api('resetPin', { seat: seat })).then(function(r){ sync(true); modal('<h3>新邀請碼</h3><p>請提供給 ' + esc(s.name) + ' 的家長：</p><div class="mono" style="font-size:32px;text-align:center;margin:10px 0">' + r.pin + '</div><div class="acts"><button class="btn" id="x">好</button></div>', function(mm, cc){ $('#x', mm).onclick = cc; }); });
+        }); };
+        $('#mDel', m).onclick = function(){ close(); confirmBox('確定移除 ' + s.name + '？相關紀錄將無法復原。', '移除', true).then(function(ok){ if (ok) run(null, api('removeStudent', { seat: seat }), '已移除').then(function(){ sync(true); }); }); };
+      });
+  },
+  printSlips: function(){
+    var d = D(), url = appUrl();
+    var stu = d.students.filter(function(s){ return s.pinInit; });
+    if (!stu.length) { toast('所有家長都已啟用帳號，沒有需要列印的邀請單'); return; }
+    $('#print').innerHTML = stu.map(function(s){
+      return '<div class="slip"><img src="' + qrSrc(url, 200) + '" width="96" height="96" style="float:right;margin-left:10px"><h4>' + esc(d.cls.className) + '　親師通邀請單</h4>' + esc(s.seat) + ' 號 ' + esc(s.name) + ' 家長您好：本班改用「興嘉親師通」聯絡，取代 LINE 群組。請用手機開啟下列網址登入：<br>' +
+        '<b>' + esc(url) + '</b><br>座號：<b>' + esc(s.seat) + '</b>　邀請碼：<b class="mono">' + esc(s.pinInit) + '</b><br>' +
+        '<span style="font-size:12px">首次登入後請設定自己的密碼，並可「安裝到手機桌面」。家中多位家長可共用同一組帳號。　導師 ' + esc(d.cls.teacherName) + '</span></div>';
+    }).join('');
+    var imgs = [].slice.call($('#print').querySelectorAll('img')), left = imgs.length, done = false;
+    var fire = function(){ if (!done) { done = true; window.print(); } };
+    imgs.forEach(function(i){ i.onload = i.onerror = function(){ if (--left <= 0) fire(); }; });
+    setTimeout(fire, 2500);
+  },
+  adoptList: function(k){
+    var d = D(), f = ADOPT[k][1], yes = d.students.filter(f), no = d.students.filter(function(s){ return !f(s); });
+    var chip = function(s, cls){ return '<span class="chip ' + (cls || '') + '">' + esc(s.seat + ' ' + s.name) + (k === 'week' || k === 'join' ? '' : '') + '</span>'; };
+    modal('<h3>' + ADOPT[k][0] + '：' + yes.length + ' / ' + d.students.length + '</h3><p class="hint">' + ADOPT[k][2] + '</p>' +
+      '<label class="f">尚未（' + no.length + '）</label><div class="chips">' + (no.length ? no.map(function(s){ return chip(s, 'no'); }).join('') : '<span class="meta">全部都有 🎉</span>') + '</div>' +
+      '<label class="f">已' + ADOPT[k][0].replace(/^已/, '') + '（' + yes.length + '）</label><div class="chips">' + yes.map(function(s){ return chip(s); }).join('') + '</div>' +
+      (k === 'join' && no.length ? '<p class="hint">還沒加入的家長收不到通知，可以補印邀請單，或在聯絡簿上提醒。</p>' : '') +
+      (k === 'app' && no.length ? '<p class="hint">已加入但還沒裝成 App 的家長，可以私訊提醒他們從「我的」→「安裝到手機桌面」。</p>' : '') +
+      '<div class="acts">' + (k === 'join' && no.length ? '<button class="btn ghost" id="pr">補印邀請單（' + no.length + '）</button>' : '') +
+      (k === 'app' && no.filter(ADOPT.join[1]).length ? '<button class="btn ghost" id="rm">私訊提醒安裝</button>' : '') +
+      '<button class="btn line" id="x">關閉</button></div>', function(m, close){
+        $('#x', m).onclick = close;
+        if ($('#pr', m)) $('#pr', m).onclick = function(){ close(); ACT.printSlips(); };
+        if ($('#rm', m)) $('#rm', m).onclick = function(){
+          var list = no.filter(ADOPT.join[1]), b = this; busy(b, true);
+          list.reduce(function(pr, s){ return pr.then(function(){ return api('sendMsg', { seat: s.seat, body: '家長您好，建議把親師通安裝到手機桌面，之後點圖示就能開啟、比較不會漏看訊息：「我的」→「📲 安裝到手機／電腦桌面」（iPhone 請用 Safari 開啟）。謝謝！' }); }); }, Promise.resolve())
+            .then(function(){ close(); toast('已提醒 ' + list.length + ' 位家長'); sync(true); }).catch(function(e){ busy(b, false); toast(e.message); });
+        };
+      });
+  },
+  viewImg: function(id){
+    var v = document.createElement('div'); v.className = 'viewer';
+    v.innerHTML = '<div class="vi"><div class="empty" style="color:#ccc">載入中…</div></div><div class="vb"><button class="btn ghost" id="vd">下載</button><button class="btn line" id="vx">關閉</button></div>';
+    document.body.appendChild(v);
+    var close = function(){ v.remove(); };
+    v.querySelector('#vx').onclick = close;
+    v.querySelector('.vi').onclick = function(e){ if (e.target === this) close(); };
+    attFetch(id, false).then(function(u){
+      v.querySelector('.vi').innerHTML = '<img src="' + u + '" alt="">';
+      v.querySelector('#vd').onclick = function(){ saveSheet(id, 'photo_' + todayStr().replace(/-/g, '') + '_' + id.slice(-4) + '.jpg'); };
+    }).catch(function(e){ v.querySelector('.vi').innerHTML = '<div class="empty" style="color:#ccc">' + esc(e.message) + '</div>'; });
+  },
+  dlFile: function(id, el){ saveSheet(id, el.dataset.name || 'file'); },
+  copyUrl: function(){
+    var u = appUrl(), ok = function(){ toast('已複製，可貼到聯絡簿或簡訊給家長'); };
+    var fb = function(){ var t = document.createElement('textarea'); t.value = u; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); ok(); } catch(e){ toast(u); } t.remove(); };
+    if (navigator.clipboard) navigator.clipboard.writeText(u).then(ok, fb); else fb();
+  },
+  exportCsv: function(){
+    var d = D(), rows = [['類型','日期/標題','座號','姓名','狀態','選項','留言','時間']];
+    d.posts.filter(function(p){ return p.requireAck; }).forEach(function(p){
+      d.students.forEach(function(s){
+        var a = ackOf(p.id, s.seat)[0];
+        rows.push([{announce:'公告',poll:'回條',contact:'聯絡簿'}[p.type], p.type === 'contact' ? p.date : p.title, s.seat, s.name, a ? '已完成' : '未完成', a ? a.choice : '', a ? a.reply : '', a ? new Date(a.ts).toLocaleString('zh-TW') : '']);
+      });
+    });
+    var csv = '﻿' + rows.map(function(r){ return r.map(function(v){ return '"' + String(v).replace(/"/g, '""') + '"'; }).join(','); }).join('\r\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = d.cls.classId + '_親師通紀錄_' + todayStr() + '.csv'; a.click();
+  },
+  notifyOn: function(){
+    if (!window.Notification) { toast('此瀏覽器不支援通知'); return; }
+    Notification.requestPermission().then(function(p){ toast(p === 'granted' ? '通知已開啟 🔔' : '通知未開啟，可到瀏覽器設定允許'); sync(false); });
+  },
+  installHint: function(){ doInstall(); },
+  _oldInstallHint: function(){
+    modal('<h3>加到手機主畫面</h3><div class="body"><b>iPhone（Safari）</b>：點下方「分享」→「加入主畫面」。\n<b>Android（Chrome）</b>：點右上「⋮」→「加到主畫面」。\n\n之後點主畫面圖示就能直接開啟，免再輸入網址。</div><div class="acts"><button class="btn" id="x">知道了</button></div>', function(m, c){ $('#x', m).onclick = c; });
+  },
+  changePinAct: function(){ openChangePin(false); },
+  changePw: function(){
+    modal('<h3>變更老師密碼</h3><label class="f">舊密碼</label><input type="password" class="in-t" id="o"><label class="f">新密碼</label><input type="password" class="in-t" id="n"><label class="f">再輸入一次</label><input type="password" class="in-t" id="n2">' +
+      '<div class="acts"><button class="btn line" id="x">取消</button><button class="btn" id="ok">變更</button></div>', function(m, close){
+        $('#x', m).onclick = close;
+        $('#ok', m).onclick = function(){
+          if ($('#n', m).value !== $('#n2', m).value) { toast('兩次新密碼不一致'); return; }
+          run(this, api('changeTeacherPw', { oldPw: $('#o', m).value, newPw: $('#n', m).value }), '密碼已變更').then(function(r){ close(); S.token = r.token; saveSession(); });
+        };
+      });
+  }
+};
+function bindAttach(m){
+  var list = [];
+  var draw = function(){
+    var box = $('#pAtt', m); box.innerHTML = pendThumbs(list, 'rma');
+    box.querySelectorAll('[data-rma]').forEach(function(b){ b.onclick = function(){ list.splice(Number(b.dataset.rma), 1); draw(); }; });
+  };
+  var add = function(fs){ fs.forEach(function(f){ if (list.length < 9) list.push(f); }); draw(); };
+  $('#pImg', m).onclick = function(){ pickFiles('image/*', add); };
+  $('#pFile', m).onclick = function(){ pickFiles('', add); };
+  return function(){ return list; };
+}
+function postWithAtt(files, payload){
+  return uploadAll(files, '', function(i, n){ toast('上傳附件 ' + i + ' / ' + n + '…'); })
+    .then(function(ids){ payload.att = ids; return api('post', payload); });
+}
+var HELP = {
+  t: [
+    ['開學第一週', '1. 「班級管理」→「匯入／編輯名單」，從 Excel 複製「座號、姓名、家長稱呼」三欄貼上。\n2. 「列印邀請單」：每位家長一張，有 QR Code 和 6 位數邀請碼。\n3. 發第一則公告，請家長按「我已閱讀」，就知道誰還沒加入。'],
+    ['公告與回條', '右下角 ＋ →「一般公告」或「回條／調查」。點「已讀 12/25」看誰還沒讀，按「提醒未完成家長」會一一私訊提醒。'],
+    ['電子聯絡簿', '「聯絡簿」→ ＋，一行寫一項作業。可「帶入上次內容」再修改。家長簽名時可以留言，留言會顯示在卡片下方。'],
+    ['訊息', '每個家庭一個獨立對話，家長之間看不到彼此。左下 ＋ 可傳照片、檔案、連結，😊 是貼圖。要通知全班請用公告，不要逐一私訊。'],
+    ['請假', '家長送出假單後，紅點會提醒你。按「確認收到」或「需補充說明」，可附一句回覆。'],
+    ['休息時段', '「班級管理」→「班級設定」可改。休息時段內家長仍可傳訊，但會看到「老師上班時間回覆」的提醒。'],
+    ['家長忘記密碼', '「班級管理」→ 學生右邊「⋯」→「重設家長密碼」，把新邀請碼給家長。'],
+    ['老師忘記密碼', '打開本班的親師通試算表 → 選單「📮 親師通」→「修改班級名稱／重設老師密碼」。'],
+    ['資料在哪裡', '全部在你自己的 Google 試算表，附件在雲端硬碟「親師通附件」資料夾。學年結束可直接備份這份試算表。']
+  ],
+  p: [
+    ['第一次登入', '輸入孩子的座號和邀請單上的 6 位數邀請碼，接著設定自己的密碼。爸爸媽媽可以用同一組座號和密碼各自登入。'],
+    ['安裝成 App', '「我的」→「安裝到手機／電腦桌面」。iPhone 請用 Safari：「分享」→「加入主畫面」；Android 和電腦 Chrome 會直接跳出安裝。'],
+    ['公告回條', '有「待回覆」標籤的請按「我已閱讀」或填寫回條，老師才知道您看過了。'],
+    ['聯絡簿', '看完孩子當天的作業和事項，按「家長簽名」。想跟老師說的話可以寫在留言。'],
+    ['問老師', '只有您和老師看得到。可以傳文字、照片、檔案、連結和貼圖。老師休息時段傳的訊息，會在上班時間回覆；緊急事件請直接打電話到學校。'],
+    ['請假', '「請假」→ 右下角 ＋，選假別、日期、事由送出。老師確認前可以取消。'],
+    ['忘記密碼', '請直接告訴老師，老師會給您新的邀請碼。']
+  ]
+};
+function openHelp(){
+  var list = HELP[isT() ? 't' : 'p'];
+  modal('<h3>' + (isT() ? '老師使用說明' : '家長使用說明') + '</h3>' + list.map(function(h, i){
+    return '<details style="border-bottom:1px solid #f0ede7;padding:10px 0"' + (i ? '' : ' open') + '><summary style="font-weight:700;cursor:pointer">' + esc(h[0]) + '</summary><div class="body" style="margin-top:6px;color:var(--ink2)">' + esc(h[1]) + '</div></details>';
+  }).join('') + '<div class="acts"><button class="btn" id="x">知道了</button></div>', function(m, c){ $('#x', m).onclick = c; });
+}
+/* 下載：先把檔案準備好，再讓使用者「親手」按儲存（手機瀏覽器規定分享／下載必須是點擊當下觸發） */
+function saveSheet(id, name){
+  var m = modal('<h3>' + esc(name) + '</h3><div class="hint" id="svS">檔案準備中…</div><div id="svB"></div><div class="acts"><button class="btn line" id="x">關閉</button></div>', function(mm, c){ $('#x', mm).onclick = c; });
+  attFetch(id, false).then(function(u){
+    var blob = ATT.blob[id], file = null;
+    try { file = new File([blob], name, { type: blob.type || 'application/octet-stream' }); } catch(e){}
+    var mobile = IS_IOS || /android/i.test(navigator.userAgent);
+    var canShare = !!(file && navigator.canShare && (function(){ try { return navigator.canShare({ files: [file] }); } catch(e){ return false; } })());
+    var b = '';
+    if (canShare && mobile) b += '<button class="btn block acc" id="svShare" style="margin-top:10px">📥 儲存到手機（照片／檔案）</button>';
+    if (!IN_GAS && !(IS_IOS && IS_STANDALONE)) b += '<button class="btn block' + (canShare && mobile ? ' ghost' : '') + '" id="svDl" style="margin-top:10px">⬇️ 下載</button>';
+    b += '<button class="btn block line" id="svOpen" style="margin-top:10px">🔎 開啟檢視</button>';
+    if (IN_GAS && /\?s=|\?u=/.test(appUrl())) b += '<p class="hint">下載不順？改用 <a href="' + esc(appUrl()) + '" target="_top">App 版</a> 開啟親師通，下載最穩定。</p>';
+    else if (IS_IOS) b += '<p class="hint">iPhone：選「儲存影像」存到照片，或「儲存到檔案」。若用 LINE 開啟，請改用 Safari。</p>';
+    $('#svS', m).textContent = fmtSize(blob.size) + '，準備好了';
+    $('#svB', m).innerHTML = b;
+    if ($('#svShare', m)) $('#svShare', m).onclick = function(){
+      navigator.share({ files: [file], title: name }).then(function(){ m.close(); }).catch(function(e){ if (e && e.name !== 'AbortError') toast('無法分享，請改用「開啟檢視」'); });
+    };
+    if ($('#svDl', m)) $('#svDl', m).onclick = function(){
+      var a = document.createElement('a'); a.href = u; a.download = name; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+      toast('已開始下載，請看瀏覽器的下載清單');
+    };
+    $('#svOpen', m).onclick = function(){
+      var w = null; try { w = window.open(u, '_blank'); } catch(e){}
+      if (!w) $('#svB', m).insertAdjacentHTML('beforeend', '<p class="hint">瀏覽器擋住了新分頁，請點：<a href="' + u + '" target="_blank" rel="noopener">開啟 ' + esc(name) + '</a>（電腦可按右鍵「另存連結」）</p>');
+    };
+  }).catch(function(e){ $('#svS', m).textContent = '讀取失敗：' + e.message; });
+}
+function leaveDecide(id, status){
+  var ok = status === 'approved';
+  modal('<h3>' + (ok ? '確認收到假單' : '需要家長補充說明') + '</h3><label class="f">回覆家長（選填）</label><input class="in-t" id="ln" maxlength="200" placeholder="' + (ok ? '例如：祝早日康復' : '例如：請補附就診證明') + '">' +
+    '<div class="acts"><button class="btn line" id="x">取消</button><button class="btn ' + (ok ? 'okb' : 'bad') + '" id="go">送出</button></div>', function(m, close){
+      $('#x', m).onclick = close;
+      $('#go', m).onclick = function(){ run(this, api('decideLeave', { id: id, status: status, note: $('#ln', m).value }), '已回覆').then(function(){ close(); sync(true); }); };
+    });
+}
+function openChangePin(first){
+  modal('<h3>' + (first ? '歡迎！請設定您的家長密碼' : '變更家長密碼') + '</h3>' + (first ? '<p class="hint">為了安全，請把老師給的邀請碼換成您自己記得的密碼（4–20 碼）。</p>' : '') +
+    '<label class="f">' + (first ? '邀請碼' : '舊密碼') + '</label><input type="password" class="in-t" id="o"><label class="f">新密碼</label><input type="password" class="in-t" id="n"><label class="f">再輸入一次</label><input type="password" class="in-t" id="n2">' +
+    '<div class="acts">' + (first ? '<button class="btn line" id="x">稍後再說</button>' : '<button class="btn line" id="x">取消</button>') + '<button class="btn" id="ok">設定</button></div>', function(m, close){
+      $('#x', m).onclick = close;
+      $('#ok', m).onclick = function(){
+        if ($('#n', m).value !== $('#n2', m).value) { toast('兩次新密碼不一致'); return; }
+        run(this, api('changePin', { oldPin: $('#o', m).value, newPin: $('#n', m).value }), '密碼設定完成').then(function(r){ close(); S.token = r.token; saveSession(); sync(true); });
+      };
+    });
+}
+
+/* ---------- 啟動 ---------- */
+(function boot(){
+  var s = null; try { s = JSON.parse(lsGet(SESSION_KEY) || 'null'); } catch(e){}
+  if (s && s.token) { S.demo = !!s.demo && !IN_GAS; startSession(s.token); return; }
+  if (!IN_GAS && !gasUrl()) {
+    if (IS_WEB) { renderNoClass(); return; }
+    S.demo = true; renderLogin(); return;
+  }
+  setManifest('');
+  loadInfo();
+})();
+</script>
+</body>
+</html>
