@@ -1,5 +1,5 @@
 // 興嘉親師通 App 版：離線外殼快取（訊息資料一律即時向伺服器讀取，不快取）
-const CACHE = 'xjpt-v1';
+const CACHE = 'xjpt-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './favicon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

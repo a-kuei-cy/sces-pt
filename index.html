@@ -998,7 +998,7 @@ function renderLogin(){
         '<div class="err" id="lgErr"></div>' +
         '<button class="btn block" id="lgGo">登入</button>' +
       '</div>' +
-      (canOfferInstall() || IS_WEB ? '<button class="btn block ghost" id="instChip" style="margin-top:10px;' + (canOfferInstall() ? '' : 'display:none') + '">📲 安裝到手機／電腦桌面</button>' : '') +
+      ((canOfferInstall() || IS_WEB) && !IS_STANDALONE && !S.demo ? '<button class="btn block ghost" id="instChip" style="margin-top:10px">📲 安裝到手機／電腦桌面</button>' : '') +
       (IN_GAS || (gasUrl() && !S.demo && IS_WEB) ? '' : '<div class="row" style="justify-content:center;gap:18px;margin-top:6px">' +
         '<button class="link" id="lgDemo">' + (S.demo ? '離開示範模式' : '試用示範模式') + '</button>' +
         '<button class="link" id="lgCfg">連線設定</button></div>') +
@@ -1029,6 +1029,7 @@ function renderLogin(){
 function renderNoClass(){
   root.innerHTML = '<div class="login"><div class="brand"><div class="logo">' + ICON('logo') + '</div><h1>興嘉親師通</h1><p>老師與家長的專屬聯絡平台</p></div>' +
     '<div class="card"><div class="ttl">請用老師提供的連結開啟</div><div class="body">掃描邀請單上的 QR Code，或點老師傳給您的網址，就會進入您孩子的班級。</div></div>' +
+    '<p class="hint" style="text-align:center">要安裝到桌面：請先用班級連結開啟，登入頁會出現「📲 安裝」按鈕。<br>老師：班級連結在試算表選單「📮 親師通」→「取得家長網址與 QR Code」。</p>' +
     '<button class="btn block line" id="dm">先看看示範</button></div>';
   $('#dm').onclick = function(){ S.demo = true; renderLogin(); };
 }
